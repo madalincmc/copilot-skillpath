@@ -16,6 +16,16 @@ No build step and no dependencies. Tests need Node.js 20+:
 npm test
 ```
 
+### Build and share
+
+```sh
+npm run build
+```
+
+Writes `dist/copilot-skillpath.html`: one self-contained file with every stylesheet and script inlined. Share that file (e.g. on Teams); it opens with a double-click, offline. `docs/how-to-start.md` is a short guide to send with it.
+
+Every push to `main` also publishes the same file to GitHub Pages at <https://madalincmc.github.io/copilot-skillpath/> (workflow: `.github/workflows/pages.yml`, which runs the tests first). The Pages site is public even though the repository is private.
+
 ### Constraints to keep
 
 * **Classic `<script>` tags only.** Browsers block ES modules and fetching local files when a page is opened from `file://`. Every script attaches to the `SkillPath` global, and the load order is in `index.html`.
