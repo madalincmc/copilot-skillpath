@@ -105,6 +105,42 @@
     return ctx;
   }
 
+  /**
+   * Human-readable profile rows for summaries: [{ id, label, value }].
+   * Uses form labels (not prompt wording). "Other" options show the user's text, and fields that only
+   * feed another row (e.g. frameworkOther) are left out.
+   */
+  function describeProfile(profile) {
+    const values = sanitizeProfile(profile);
+    const domain = getDomain(values.domain);
+    if (!domain) return [];
+    const fields = getFields(domain.id);
+    const feeders = new Set();
+    for (const field of fields) {
+      for (const option of field.options || []) if (option.labelFromField) feeders.add(option.labelFromField);
+    }
+    const ctx = buildPromptContext(values);
+
+    const rows = [{ id: 'domain', label: 'Learning domain', value: domain.label }];
+    for (const field of fields) {
+      const raw = values[field.id];
+      if (raw == null || raw === '' || feeders.has(field.id)) continue;
+      const summary = field.summary || {};
+      if (summary.hidden) continue;
+      let value = String(raw);
+      if (summary.derived) {
+        if (!ctx[summary.derived]) continue;
+        value = ctx[summary.derived].label;
+      } else if (field.options) {
+        const option = field.options.find((o) => o.value === raw);
+        const custom = option.labelFromField ? String(values[option.labelFromField] || '').trim() : '';
+        value = custom || option.label;
+      }
+      rows.push({ id: field.id, label: field.label, value });
+    }
+    return rows;
+  }
+
   function listPresets(domainId) {
     return config.presets.filter((p) => !domainId || p.domain === domainId);
   }
@@ -240,6 +276,7 @@
     sanitizeProfile,
     validateProfile,
     buildPromptContext,
+    describeProfile,
     listPresets,
     applyPreset,
     getStarterPath,

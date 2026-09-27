@@ -15,6 +15,9 @@
  *   visibleWhen  Rule(s) that must match for the field to be shown. May only reference earlier fields.
  *   min, max     For numbers.
  *   placeholder  For text inputs.
+ *   summary      How the field appears in profile summaries (profile page, Prompt Pack):
+ *                  { derived: 'id' }  show that derived variable instead of the raw value
+ *                  { hidden: true }   leave the field out (it is covered by another row)
  *
  * Rule: { field, equals } | { field, notEquals } | { field, in: [...] }. An array of rules means all must match.
  *
@@ -87,6 +90,7 @@
     {
       id: 'timeAmount',
       label: 'Available time',
+      summary: { derived: 'availableTime' },
       group: 'schedule',
       type: 'number',
       required: true,
@@ -97,6 +101,7 @@
     {
       id: 'timeUnit',
       label: 'Per',
+      summary: { hidden: true },
       group: 'schedule',
       type: 'select',
       required: true,

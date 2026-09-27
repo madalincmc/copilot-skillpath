@@ -34,8 +34,14 @@ js/config/helpers.js       Visibility, sanitizing, validation, prompt context, c
 js/engine/prompt-engine.js Template syntax, validation, and generation (pure functions)
 js/templates/registry.js   Template registry (templates are added by content files)
 js/storage/storage.js      Versioned localStorage store with in-memory fallback
+js/export/prompt-pack.js   Prompt Pack Markdown builder (pure)
+js/export/data-file.js     JSON data file export/import (pure)
 js/ui/dom.js               Small DOM helper (text nodes only, no innerHTML)
-js/ui/app.js               Navigation, routing, storage notice, views
+js/ui/browser.js           Clipboard (with file:// fallback), download, file reading
+js/ui/components.js        Page header, empty state, status messages, Prompt Pack button
+js/ui/prompt-card.js       Prompt card: inputs, copy, save, character count
+js/ui/views/               Starter Path, My Profile (incl. data export/import), My Prompts
+js/ui/app.js               Navigation, routing, storage notice, announcements
 tests/                     node:test suites
 ```
 

@@ -254,6 +254,22 @@
         return clone(saved);
       },
 
+      /** Updates title, text, and/or templateVersion of a saved prompt. Returns the updated prompt, or null if not found. */
+      updatePrompt(id, patch) {
+        const index = state.prompts.findIndex((p) => p.id === id);
+        if (index === -1) return null;
+        const next = Object.assign({}, state.prompts[index], { savedAt: now() });
+        for (const key of ['title', 'text', 'templateVersion']) {
+          if (patch && key in patch) next[key] = patch[key];
+        }
+        if (!isValidPrompt(next) || !next.title.trim() || !next.text.trim()) {
+          throw new TypeError('A saved prompt needs a title and text.');
+        }
+        state.prompts[index] = next;
+        commit();
+        return clone(next);
+      },
+
       removePrompt(id) {
         const before = state.prompts.length;
         state.prompts = state.prompts.filter((p) => p.id !== id);

@@ -12,6 +12,8 @@ const CORE_SCRIPTS = [
   'js/config/helpers.js',
   'js/templates/registry.js',
   'js/storage/storage.js',
+  'js/export/prompt-pack.js',
+  'js/export/data-file.js',
 ];
 
 function loadCore() {
