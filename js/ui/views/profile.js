@@ -13,10 +13,21 @@
   const config = SP.config;
   const DEFAULT_DOMAIN = 'automation-testing';
 
+  // A preset picked on the Starter Path, applied the next time this view renders.
+  let pendingPresetId = null;
+
+  function openProfileWithPreset(presetId) {
+    pendingPresetId = presetId;
+    location.hash = '#/profile';
+  }
+
   function profileView(app) {
     const store = app.store;
     const saved = store.getProfile();
     let draft = saved ? Object.assign({}, saved) : config.getDefaults(DEFAULT_DOMAIN);
+    const presetFromPath = pendingPresetId ? config.listPresets().find((p) => p.id === pendingPresetId) : null;
+    pendingPresetId = null;
+    if (presetFromPath) draft = config.applyPreset(presetFromPath.id);
     let errors = {};
     let submitted = false;
 
@@ -215,7 +226,7 @@
       }, 'Replace my data');
       showImportPanel(
         h('p', null, '"' + file.name + '" contains ' + SP.exports.summarizeData(data) + '.'),
-        h('p', null, 'Importing replaces your current profile, progress, and saved prompts on this computer. This cannot be undone.'),
+        h('p', null, 'Importing replaces your current profile and progress on this computer. This cannot be undone.'),
         h('div', { class: 'form-actions' },
           confirmButton,
           h('button', { type: 'button', class: 'button button-secondary', onClick: () => { importPanel.hidden = true; } }, 'Cancel')));
@@ -244,7 +255,7 @@
   }
 
   /**
-   * Deletes everything (profile, progress, saved prompts) after a second click, then reloads the page
+   * Deletes everything (profile and progress) after a second click, then reloads the page
    * so in-memory state such as the wizard position and open steps starts fresh too.
    */
   function resetControl(app) {
@@ -266,9 +277,10 @@
       location.reload();
     });
     return h('div', { class: 'reset-control' },
-      h('p', { class: 'hint' }, 'Removes your profile, progress, and saved prompts from this browser. Export your data first if you want to keep it.'),
+      h('p', { class: 'hint' }, 'Removes your profile and progress from this browser. Export your data first if you want to keep it.'),
       button);
   }
 
   SP.views = Object.assign(SP.views || {}, { profile: profileView });
+  SP.ui.openProfileWithPreset = openProfileWithPreset;
 })((globalThis.SkillPath = globalThis.SkillPath || {}));

@@ -2,12 +2,13 @@
 // missing data, stays short, and contains no technology-specific wording (PRD §4.3, §4.5).
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { loadCore } = require('./helpers/load');
+const { loadCore, testProfiles } = require('./helpers/load');
 
 const SP = loadCore();
+const P = testProfiles(SP);
 const config = SP.config;
 const path = config.getStarterPath('automation-testing');
-const presets = config.listPresets('automation-testing');
+const profiles = Object.entries(P);
 
 function stepFor(template) {
   return path.steps.find((s) => s.mainTemplateId === template.id || (s.setupTemplateIds || []).includes(template.id)) || path.steps[4];
@@ -17,21 +18,23 @@ test('every template referenced by the config is registered', () => {
   assert.deepEqual(config.validateConfig({ checkTemplates: true }), []);
 });
 
-test('every template generates for every preset with nothing missing', () => {
-  for (const preset of presets) {
-    const context = config.buildPromptContext(config.applyPreset(preset.id));
+test('every template generates for every test profile with nothing missing', () => {
+  for (const [name, profile] of profiles) {
+    const context = config.buildPromptContext(profile);
     for (const template of SP.templates.list({ domain: 'automation-testing' })) {
       const result = SP.engine.generate(template, { context, step: stepFor(template) });
-      assert.deepEqual(result.missing, [], preset.id + ' / ' + template.id);
-      assert.doesNotMatch(result.text, /\[MISSING|undefined|null|\{\{|\}\}/, preset.id + ' / ' + template.id);
+      assert.deepEqual(result.missing, [], name + ' / ' + template.id);
+      assert.doesNotMatch(result.text, /\[MISSING|undefined|null|\{\{|\}\}/, name + ' / ' + template.id);
     }
   }
 });
 
 test('step, helper, and library prompts stay short; setup prompts carry the context', () => {
-  const limits = { setup: 1600, step: 450, helper: 350, library: 350 };
-  for (const preset of presets) {
-    const context = config.buildPromptContext(config.applyPreset(preset.id));
+  // Step prompts end with the shared step rules (one step at a time, 3 questions, back to the app),
+  // so they get more room than helpers. Setup prompts are copied once.
+  const limits = { setup: 1900, step: 600, helper: 350, library: 350 };
+  for (const [, profile] of profiles) {
+    const context = config.buildPromptContext(profile);
     for (const template of SP.templates.list()) {
       const { charCount } = SP.engine.generate(template, { context, step: stepFor(template) });
       assert.ok(charCount <= limits[template.category], template.id + ' is ' + charCount + ' characters (limit ' + limits[template.category] + ')');
@@ -66,13 +69,13 @@ test('step prompts do not repeat the whole profile', () => {
 
 test('Notebook instructions adapt to the profile', () => {
   const instructions = SP.templates.get('setup.notebook-instructions');
-  const beginner = SP.engine.generate(instructions, { context: config.buildPromptContext(config.applyPreset('qa-manual-to-automation-windows')) }).text;
-  assert.match(beginner, /Stack: Playwright with TypeScript, on Windows, using VS Code\./);
+  const beginner = SP.engine.generate(instructions, { context: config.buildPromptContext(P.playwright) }).text;
+  assert.match(beginner, /Stack: Playwright with JavaScript, on Windows, using VS Code\./);
   assert.match(beginner, /Assume I have not used Playwright before\./);
   assert.match(beginner, /I'm new to Git/);
   assert.match(beginner, /Relate automation ideas to manual testing/);
 
-  const intermediate = SP.engine.generate(instructions, { context: config.buildPromptContext(config.applyPreset('qa-selenium-java-intermediate')) }).text;
+  const intermediate = SP.engine.generate(instructions, { context: config.buildPromptContext(P.seleniumIntermediate) }).text;
   assert.doesNotMatch(intermediate, /Assume I have not used/);
   assert.doesNotMatch(intermediate, /new to Git/);
   assert.doesNotMatch(intermediate, /\n\n\n/);
@@ -87,9 +90,9 @@ test('the initialize prompt lists the Starter Path steps from the config', () =>
 test('Git basics are added to the GitHub step only for Git beginners', () => {
   const t = SP.templates.get('step.push-github');
   const step = path.steps.find((s) => s.id === 'push-github');
-  const gen = (presetId) => SP.engine.generate(t, { context: config.buildPromptContext(config.applyPreset(presetId)), step }).text;
-  assert.match(gen('qa-manual-to-automation-windows'), /new to Git/);
-  assert.doesNotMatch(gen('qa-selenium-java-intermediate'), /new to Git/);
+  const gen = (profile) => SP.engine.generate(t, { context: config.buildPromptContext(profile), step }).text;
+  assert.match(gen(P.playwright), /new to Git/);
+  assert.doesNotMatch(gen(P.seleniumIntermediate), /new to Git/);
 });
 
 test('every Library template belongs to a known group', () => {
@@ -100,7 +103,34 @@ test('every Library template belongs to a known group', () => {
 });
 
 test('wizard text renders with the profile', () => {
-  const context = config.buildPromptContext(config.applyPreset('qa-cypress-js-macos'));
-  const create = config.getWizard('notebook-setup').screens[0];
+  const context = config.buildPromptContext(P.cypressMac);
+  const create = config.getWizard('notebook-setup').screens[1];
   assert.match(SP.engine.renderText(create.text[1], context), /"Learning Cypress"/);
+});
+
+test('no prompt suggests IDE extensions; the only mentions say not to', () => {
+  for (const t of SP.templates.list()) {
+    const text = [t.body, t.interaction, t.output].join('\n');
+    for (const line of text.split('\n').filter((l) => /extension|plugin/i.test(l))) {
+      assert.match(line, /Don't suggest IDE extensions/, t.id + ': ' + line);
+    }
+  }
+  assert.match(SP.templates.get('step.environment').body, /Don't suggest IDE extensions for now/);
+});
+
+test('every step asks end-of-step questions and waits for each answer', () => {
+  for (const t of SP.templates.list({ category: 'step' })) {
+    assert.match(t.interaction, /ask me 3 short questions, one at a time, waiting for each answer/, t.id);
+  }
+  const instructions = SP.templates.get('setup.notebook-instructions').interaction;
+  assert.match(instructions, /When we finish a step, ask me 3 short questions/);
+  assert.match(instructions, /Don't suggest IDE extensions or plugins/);
+});
+
+test('after each step, Copilot sends the user back to the app instead of starting the next step', () => {
+  for (const t of SP.templates.list({ category: 'step' })) {
+    assert.match(t.interaction, /mark the step done in Copilot SkillPath and paste the next prompt. Don't start the next step yourself/, t.id);
+  }
+  assert.match(SP.templates.get('setup.notebook-instructions').interaction, /mark the step as done in the Copilot SkillPath app .* Don't start the next step on your own/);
+  assert.match(SP.templates.get('setup.initialize-workspace').output, /paste the Step 1 prompt from there/);
 });

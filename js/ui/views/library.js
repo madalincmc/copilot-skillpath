@@ -10,8 +10,7 @@
   const config = SP.config;
 
   function libraryView(app) {
-    const store = app.store;
-    const profile = store.getProfile();
+    const profile = app.store.getProfile();
     const header = pageHeader('Prompt Library',
       'More prompts for planning, learning, practice, building, and review. Use them in the same Copilot Notebook as your Starter Path.');
 
@@ -46,8 +45,6 @@
             template,
             context,
             domainId: profile.domain,
-            store,
-            saveTitle: template.title,
           }))));
       }));
   }

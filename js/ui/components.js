@@ -25,11 +25,5 @@
     }, 3000);
   }
 
-  function formatDate(iso) {
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return iso;
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  }
-
-  SP.ui = Object.assign(SP.ui || {}, { pageHeader, emptyState, flash, formatDate });
+  SP.ui = Object.assign(SP.ui || {}, { pageHeader, emptyState, flash });
 })((globalThis.SkillPath = globalThis.SkillPath || {}));

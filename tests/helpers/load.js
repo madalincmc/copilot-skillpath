@@ -15,6 +15,7 @@ const CORE_SCRIPTS = [
   'js/templates/steps.js',
   'js/templates/helpers.js',
   'js/templates/library.js',
+  'js/content/references.js',
   'js/storage/storage.js',
   'js/export/data-file.js',
 ];
@@ -29,4 +30,34 @@ function loadCore() {
   return globalThis.SkillPath;
 }
 
-module.exports = { ROOT, CORE_SCRIPTS, loadCore };
+/** The two presets plus variants, so tests cover more stacks, levels, and settings than the presets do. */
+function testProfiles(SP) {
+  const playwright = SP.config.applyPreset('starter-playwright-javascript');
+  const selenium = SP.config.applyPreset('starter-selenium-java');
+  return {
+    playwright,
+    selenium,
+    seleniumIntermediate: Object.assign({}, selenium, {
+      experienceLevel: 'intermediate',
+      testingExperience: 'both',
+      gitExperience: 'basic',
+      goal: 'project-ready',
+      timeAmount: '5',
+      timeUnit: 'hours-week',
+      duration: '1-month',
+      learningStyle: 'balanced',
+    }),
+    cypressMac: Object.assign({}, playwright, {
+      framework: 'cypress',
+      language: 'javascript',
+      os: 'macos',
+      gitExperience: 'basic',
+      goal: 'basics',
+      timeAmount: '30',
+      timeUnit: 'minutes-day',
+      duration: '1-month',
+    }),
+  };
+}
+
+module.exports = { ROOT, CORE_SCRIPTS, loadCore, testProfiles };

@@ -37,14 +37,15 @@ js/templates/setup.js      Step 0: Notebook instructions, initialize-workspace p
 js/templates/steps.js      Starter Path main prompts, steps 1-10
 js/templates/helpers.js    Helper prompts shown on every step
 js/templates/library.js    Prompt Library prompts and groups
+js/content/references.js   Reference files for the Notebook, generated from the profile
 js/storage/storage.js      Versioned localStorage store with in-memory fallback
 js/export/data-file.js     JSON data file export/import (pure)
 js/ui/dom.js               Small DOM helper (text nodes only, no innerHTML)
 js/ui/browser.js           Clipboard (with file:// fallback), download, file reading
 js/ui/components.js        Page header, empty state, status messages
-js/ui/prompt-card.js       Prompt card: inputs, copy, save, character count
-js/ui/views/               Starter Path, Notebook setup wizard, My Profile (incl. data export/import),
-                           My Prompts, Prompt Library
+js/ui/prompt-card.js       Prompt card: inputs, copy, character count
+js/ui/views/               Starter Path, Notebook setup wizard, Prompt Library, My Profile
+                           (incl. data export/import and reset)
 js/ui/app.js               Navigation, routing, storage notice, announcements
 tests/                     node:test suites
 ```

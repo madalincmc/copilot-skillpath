@@ -11,7 +11,7 @@
 
   register({
     id: 'setup.notebook-instructions',
-    version: 1,
+    version: 4,
     category: 'setup',
     title: 'Notebook instructions',
     description: 'Paste this once into your Notebook\'s Instructions (More options (…) → Instructions). It tells Copilot who you are and how to teach you.',
@@ -46,8 +46,10 @@
       '{{#if gitExperience == "none"}}',
       '- I\'m new to Git: explain each Git command the first time it comes up.',
       '{{/if}}',
-      '- After each new concept, ask me one short question to check my understanding.',
-      '- Follow the current official documentation for my tools, and use this Notebook\'s references first.',
+      '- Don\'t suggest IDE extensions or plugins for now; use what my IDE has built in.',
+      '- When we finish a step, ask me 3 short questions about it, one at a time. Wait for each answer and give feedback before asking the next.',
+      '- Then remind me to mark the step as done in the Copilot SkillPath app and paste the next step\'s prompt from there. Don\'t start the next step on your own.',
+      '- Use this Notebook\'s references first. For my tools, follow the officially recommended approach, and tell me when something depends on the version I use.',
       '- Connect new topics to what we already covered in this Notebook.',
       '- Keep answers concise.',
     ].join('\n'),
@@ -61,7 +63,7 @@
 
   register({
     id: 'setup.initialize-workspace',
-    version: 1,
+    version: 2,
     category: 'setup',
     title: 'Initialize my learning workspace',
     description: 'Paste this into the Notebook chat after setting the instructions and adding references. Copilot creates your learning plan.',
@@ -78,7 +80,7 @@
     output: [
       'For each step, give the goal, the key concepts, one small hands-on exercise, and a time estimate.',
       'Fit the plan to my available time and target duration, and end with a weekly schedule.',
-      'Then ask if I want to change anything before we start Step 1.',
+      'Then ask if I want to change anything. When the plan is final, tell me to finish the setup in Copilot SkillPath and paste the Step 1 prompt from there.',
     ].join('\n'),
   });
 })((globalThis.SkillPath = globalThis.SkillPath || {}));

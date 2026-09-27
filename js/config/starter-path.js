@@ -2,7 +2,7 @@
  * Starter Paths: ordered practical steps per domain.
  *
  * Step schema:
- *   id                 Stable id (used for progress and saved prompts; never rename).
+ *   id                 Stable id (used for progress; never rename).
  *   number             Display order, sequential from 0.
  *   title, summary     What the step is and what the user will achieve.
  *   definitionOfDone   How the user knows the step is finished.
@@ -122,21 +122,33 @@
 
   /*
    * Guided setups: short linear wizards with one action per screen.
-   * Screen: { id, title, text: [paragraphs with {{variables}}], templateId?, link?: { href, label }, note? }
+   * Screen: { id, title, text: [paragraphs with {{variables}}], templateId?, referenceFiles?, link?: { href, label }, note?, doneLabel }
+   *   referenceFiles  Show the generated reference files (js/content/references.js) with download buttons.
    * Menu names follow Microsoft's Copilot Notebooks documentation (September 2026).
    */
   config.wizards = [
     {
       id: 'notebook-setup',
       title: 'Set up your Copilot Notebook',
-      intro: 'Three short steps. Your Notebook becomes the place where Copilot remembers your setup and guides you through every step.',
+      intro: 'Four short steps. Your Notebook becomes the place where Copilot remembers your setup and guides you through every step.',
       screens: [
+        {
+          id: 'references',
+          title: 'Get your reference files',
+          text: [
+            'A Notebook answers from the references you give it. These files are made from your profile, so Copilot knows your setup, your plan, and the core concepts from the start.',
+            'Download them now. You will add them when you create the Notebook in the next step.',
+          ],
+          referenceFiles: true,
+          doneLabel: 'I downloaded the files',
+        },
         {
           id: 'create',
           title: 'Create your Notebook',
           text: [
             'Open the Microsoft 365 Copilot app and select Notebooks in the left navigation. If you don\'t see it, open the app launcher and select Notebooks.',
-            'Select All notebooks, then New notebook. Name it "Learning {{framework}}" and select Create.',
+            'Select All notebooks, then New notebook. Name it "Learning {{framework}}".',
+            'Under Add content to References, select Upload and add the files you downloaded. Then select Create.',
           ],
           link: { href: 'https://m365.cloud.microsoft', label: 'Open Microsoft 365 Copilot' },
           doneLabel: 'I created my Notebook',
@@ -158,7 +170,7 @@
             'Copy this prompt and paste it into the Notebook chat. Copilot reviews your instructions and creates your learning plan.',
           ],
           templateId: 'setup.initialize-workspace',
-          note: 'Optional, any time later: with Add references you can give the Notebook your own notes or your team\'s testing guidelines from OneDrive or SharePoint.',
+          note: 'Any time later, with Add references, you can also give the Notebook your own notes or your team\'s testing guidelines from OneDrive or SharePoint.',
           doneLabel: 'Finish setup',
         },
       ],

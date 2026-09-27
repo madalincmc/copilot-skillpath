@@ -1,5 +1,5 @@
 /*
- * JSON data file: export and import of the profile, progress, checklist ticks, and saved prompts.
+ * JSON data file: export and import of the profile and Starter Path progress.
  * Pure: no DOM, no storage writes.
  */
 (function (SP) {
@@ -32,8 +32,6 @@
     parts.push(state.profile ? 'a learning profile' : 'no learning profile');
     const steps = state.progress.completedSteps.length;
     parts.push(steps + (steps === 1 ? ' completed step' : ' completed steps'));
-    const prompts = state.prompts.length;
-    parts.push(prompts + (prompts === 1 ? ' saved prompt' : ' saved prompts'));
     return parts.join(', ');
   }
 

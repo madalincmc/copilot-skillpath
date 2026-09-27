@@ -1,5 +1,5 @@
 /*
- * Local persistence for the learner profile, Starter Path progress, checklist ticks, and saved prompts.
+ * Local persistence for the learner profile and Starter Path progress.
  *
  * Everything lives under one localStorage key as a versioned JSON document. If localStorage is
  * unavailable or a write fails, the store keeps working in memory and getStatus() reports why,
@@ -34,8 +34,6 @@
       schemaVersion: SCHEMA_VERSION,
       profile: null,
       progress: { completedSteps: [] },
-      checklist: {},
-      prompts: [],
     };
   }
 
@@ -47,34 +45,16 @@
     return value != null && typeof value === 'object' && !Array.isArray(value);
   }
 
-  function isValidPrompt(p) {
-    return (
-      isPlainObject(p) &&
-      typeof p.id === 'string' && p.id !== '' &&
-      typeof p.title === 'string' &&
-      typeof p.text === 'string' &&
-      typeof p.savedAt === 'string' &&
-      (p.stepId == null || typeof p.stepId === 'string') &&
-      (p.templateId == null || typeof p.templateId === 'string') &&
-      (p.templateVersion == null || Number.isInteger(p.templateVersion))
-    );
-  }
-
-  /** Fills in missing parts and drops malformed entries. */
+  /**
+   * Fills in missing parts and drops malformed entries. Unknown keys are dropped too, including
+   * saved prompts and checklist ticks written by earlier versions of the app.
+   */
   function normalize(s) {
-    const checklist = {};
-    if (isPlainObject(s.checklist)) {
-      for (const [key, value] of Object.entries(s.checklist)) {
-        if (typeof value === 'boolean') checklist[key] = value;
-      }
-    }
     const steps = s.progress && Array.isArray(s.progress.completedSteps) ? s.progress.completedSteps : [];
     return {
       schemaVersion: SCHEMA_VERSION,
       profile: isPlainObject(s.profile) ? s.profile : null,
       progress: { completedSteps: Array.from(new Set(steps.filter((id) => typeof id === 'string'))) },
-      checklist,
-      prompts: Array.isArray(s.prompts) ? s.prompts.filter(isValidPrompt) : [],
     };
   }
 
@@ -116,22 +96,12 @@
     }
   }
 
-  let idCounter = 0;
-  function defaultMakeId() {
-    idCounter += 1;
-    return 'p-' + Date.now().toString(36) + '-' + idCounter.toString(36) + '-' + Math.random().toString(36).slice(2, 7);
-  }
-
   /**
    * options:
    *   backend  Storage-like object (getItem/setItem/removeItem). Defaults to localStorage.
-   *   now      () => ISO timestamp string.
-   *   makeId   () => unique id for saved prompts.
    */
   function createStore(options) {
     const opts = options || {};
-    const now = opts.now || (() => new Date().toISOString());
-    const makeId = opts.makeId || defaultMakeId;
     const listeners = new Set();
 
     let backend = probe('backend' in opts ? opts.backend : defaultBackend());
@@ -220,62 +190,6 @@
         if (done) steps.push(stepId);
         state.progress.completedSteps = steps;
         commit();
-      },
-
-      getChecklist() {
-        return clone(state.checklist);
-      },
-
-      setChecklistItem(itemId, checked) {
-        state.checklist[itemId] = Boolean(checked);
-        commit();
-      },
-
-      listPrompts() {
-        return clone(state.prompts);
-      },
-
-      /** prompt: { title, text, stepId?, templateId?, templateVersion? }. Returns the saved prompt. */
-      addPrompt(prompt) {
-        const saved = {
-          id: makeId(),
-          title: prompt && prompt.title,
-          text: prompt && prompt.text,
-          stepId: (prompt && prompt.stepId) || null,
-          templateId: (prompt && prompt.templateId) || null,
-          templateVersion: prompt && prompt.templateVersion != null ? prompt.templateVersion : null,
-          savedAt: now(),
-        };
-        if (!isValidPrompt(saved) || !saved.title.trim() || !saved.text.trim()) {
-          throw new TypeError('A saved prompt needs a title and text.');
-        }
-        state.prompts.push(saved);
-        commit();
-        return clone(saved);
-      },
-
-      /** Updates title, text, and/or templateVersion of a saved prompt. Returns the updated prompt, or null if not found. */
-      updatePrompt(id, patch) {
-        const index = state.prompts.findIndex((p) => p.id === id);
-        if (index === -1) return null;
-        const next = Object.assign({}, state.prompts[index], { savedAt: now() });
-        for (const key of ['title', 'text', 'templateVersion']) {
-          if (patch && key in patch) next[key] = patch[key];
-        }
-        if (!isValidPrompt(next) || !next.title.trim() || !next.text.trim()) {
-          throw new TypeError('A saved prompt needs a title and text.');
-        }
-        state.prompts[index] = next;
-        commit();
-        return clone(next);
-      },
-
-      removePrompt(id) {
-        const before = state.prompts.length;
-        state.prompts = state.prompts.filter((p) => p.id !== id);
-        const removed = state.prompts.length !== before;
-        if (removed) commit();
-        return removed;
       },
 
       /** Full data snapshot, for JSON export. */

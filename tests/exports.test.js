@@ -5,17 +5,16 @@ const { loadCore } = require('./helpers/load');
 const SP = loadCore();
 const { serializeDataFile, parseDataFile, summarizeData, dataFilename } = SP.exports;
 
-const profile = SP.config.applyPreset('qa-manual-to-automation-windows');
+const profile = SP.config.applyPreset('starter-playwright-javascript');
 
 test('data file name includes the date', () => {
   assert.equal(dataFilename('2026-10-01'), 'copilot-skillpath-data-2026-10-01.json');
 });
 
 test('data file round-trips through serialize and parse', () => {
-  const store = SP.storage.createStore({ backend: null, now: () => '2026-10-01T00:00:00.000Z', makeId: () => 'x' });
+  const store = SP.storage.createStore({ backend: null });
   store.saveProfile(profile);
   store.setStepDone('environment', true);
-  store.addPrompt({ title: 'T', text: 'P' });
   const text = serializeDataFile(store.exportState(), '2026-10-01T12:00:00.000Z');
   const parsed = JSON.parse(text);
   assert.equal(parsed.app, 'copilot-skillpath');
@@ -32,16 +31,7 @@ test('parseDataFile rejects files that are not ours', () => {
 });
 
 test('summarizeData describes the contents', () => {
-  const state = SP.storage.migrate({ schemaVersion: 1, profile: { domain: 'x' }, progress: { completedSteps: ['a'] }, prompts: [] });
-  assert.equal(summarizeData(state), 'a learning profile, 1 completed step, 0 saved prompts');
+  const state = SP.storage.migrate({ schemaVersion: 1, profile: { domain: 'x' }, progress: { completedSteps: ['a'] } });
+  assert.equal(summarizeData(state), 'a learning profile, 1 completed step');
 });
 
-test('store.updatePrompt changes text and version and refreshes savedAt', () => {
-  let t = 0;
-  const store = SP.storage.createStore({ backend: null, now: () => 'time-' + ++t, makeId: () => 'id' });
-  store.addPrompt({ title: 'T', text: 'old', templateId: 'x', templateVersion: 1 });
-  const updated = store.updatePrompt('id', { text: 'new', templateVersion: 2, id: 'hacked' });
-  assert.deepEqual(updated, { id: 'id', title: 'T', text: 'new', stepId: null, templateId: 'x', templateVersion: 2, savedAt: 'time-2' });
-  assert.equal(store.updatePrompt('missing', { text: 'x' }), null);
-  assert.throws(() => store.updatePrompt('id', { text: ' ' }), TypeError);
-});

@@ -12,6 +12,43 @@
 
   let screenIndex = 0;
 
+  /** The generated reference files, each with a preview and a download button, plus Download all. */
+  function referenceFilesBlock(profile, app) {
+    const files = SP.references.buildReferenceFiles(profile);
+    const download = (file) => SP.browser.downloadFile(file.filename, file.text, 'text/plain;charset=utf-8');
+
+    return h('div', { class: 'reference-files' },
+      h('ul', null, files.map((file) => h('li', null,
+        h('div', { class: 'reference-file-info' },
+          h('strong', null, file.title),
+          h('span', { class: 'hint' }, file.description),
+          h('details', { class: 'reference-preview' },
+            h('summary', null, 'Preview'),
+            h('pre', { class: 'prompt-text', tabindex: '0', 'aria-label': 'Preview of ' + file.title }, file.text))),
+        h('button', {
+          type: 'button',
+          class: 'button button-secondary',
+          'aria-label': 'Download ' + file.title,
+          onClick: () => {
+            download(file);
+            app.announce(file.title + ' downloaded.');
+          },
+        }, 'Download')))),
+      files.length > 1 ? h('button', {
+        type: 'button',
+        class: 'button',
+        onClick: async () => {
+          // Spaced out so browsers don't drop downloads that start at the same moment.
+          for (const file of files) {
+            download(file);
+            await new Promise((resolve) => setTimeout(resolve, 400));
+          }
+          app.announce('All reference files downloaded.');
+        },
+      }, 'Download all (' + files.length + ' files)') : null,
+      h('p', { class: 'hint' }, 'Your browser may ask once whether to allow downloading several files.'));
+  }
+
   function setupView(app) {
     const store = app.store;
     const profile = store.getProfile();
@@ -65,6 +102,7 @@
         h('div', { class: 'wizard-screen' },
           h('h2', { tabindex: '-1' }, 'Step ' + (screenIndex + 1) + ' of ' + count + ': ' + screen.title),
           screen.text.map((text) => h('p', null, SP.engine.renderText(text, context))),
+          screen.referenceFiles ? referenceFilesBlock(profile, app) : null,
           screen.link ? h('p', null, h('a', {
             class: 'button button-secondary',
             href: screen.link.href,
@@ -76,8 +114,6 @@
             step,
             context,
             domainId: profile.domain,
-            store,
-            saveTitle: template.title,
             hideDescription: true,
           }) : null,
           screen.note ? h('p', { class: 'hint' }, SP.engine.renderText(screen.note, context)) : null,

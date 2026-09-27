@@ -9,10 +9,9 @@
   'use strict';
 
   const { h, clear } = SP.dom;
-  const { pageHeader, emptyState } = SP.ui;
 
   const STORAGE_NOTICES = {
-    'unavailable': 'Your browser is blocking local storage, so your profile, progress, and saved prompts will be lost when you close this page. Export your data (My Profile → Your data) before closing.',
+    'unavailable': 'Your browser is blocking local storage, so your profile and progress will be lost when you close this page. Export your data (My Profile → Your data) before closing.',
     'write-failed': 'Saving failed (your browser storage may be full). Changes from now on are kept only until you close this page. Export your data (My Profile → Your data) before closing.',
     'newer-version': 'Your saved data was created by a newer version of Copilot SkillPath and was left untouched. Changes in this version are kept only until you close this page.',
     'recovered': 'Your saved data could not be read, so the app started fresh. A backup of the old data was kept in your browser.',
@@ -20,21 +19,12 @@
 
   const routes = [
     { id: 'path', label: 'Starter Path' },
-    { id: 'prompts', label: 'My Prompts' },
     { id: 'library', label: 'Prompt Library' },
     { id: 'profile', label: 'My Profile' },
-    { id: 'certifications', label: 'Certifications', badge: 'Soon' },
     // Not in the menu; highlights its parent instead.
     { id: 'setup', label: 'Notebook setup', hidden: true, navParent: 'path' },
   ];
   const DEFAULT_ROUTE = 'path';
-
-  // Views not built yet. Feature files override these by registering the same id.
-  const placeholderViews = {
-    certifications: () => h('section', null,
-      pageHeader('Certifications', 'Prepare for a certification with a dedicated Notebook, study plan, and practice prompts.'),
-      emptyState(h('p', null, 'Coming soon.'))),
-  };
 
   function routeFromHash() {
     const id = (location.hash.match(/^#\/([\w-]+)/) || [])[1];
@@ -92,8 +82,7 @@
       renderNav(nav, route);
       renderNotice(notice, app.store.getStatus());
       clear(main);
-      const view = (SP.views && SP.views[route]) || placeholderViews[route];
-      main.appendChild(view(app));
+      main.appendChild(SP.views[route](app));
       document.title = routes.find((r) => r.id === route).label + ' · Copilot SkillPath';
     }
 

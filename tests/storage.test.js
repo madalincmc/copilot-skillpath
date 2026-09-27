@@ -28,24 +28,17 @@ const blockedBackend = {
   removeItem() { throw new Error('SecurityError'); },
 };
 
-let n = 0;
-const fixed = () => ({ now: () => '2026-10-01T10:00:00.000Z', makeId: () => 'id-' + ++n });
 
 test('data survives a reload', () => {
   const backend = new MemoryBackend();
-  const a = createStore(Object.assign({ backend }, fixed()));
+  const a = createStore({ backend });
   a.saveProfile({ domain: 'automation-testing', framework: 'playwright' });
   a.setStepDone('environment', true);
-  a.setChecklistItem('framework-docs', true);
-  const saved = a.addPrompt({ title: 'First test', text: 'Guide me', stepId: 'first-test', templateId: 'step.first-test', templateVersion: 2 });
 
   const b = createStore({ backend });
   assert.deepEqual(b.getStatus(), { persistent: true, reason: null });
   assert.equal(b.getProfile().framework, 'playwright');
   assert.deepEqual(b.getCompletedSteps(), ['environment']);
-  assert.deepEqual(b.getChecklist(), { 'framework-docs': true });
-  assert.deepEqual(b.listPrompts(), [saved]);
-  assert.equal(saved.savedAt, '2026-10-01T10:00:00.000Z');
 });
 
 test('falls back to memory when storage is blocked', () => {
@@ -87,19 +80,16 @@ test('data from a newer version is left untouched', () => {
   assert.equal(backend.getItem(STORAGE_KEY), raw);
 });
 
-test('stored data is normalized: malformed entries dropped, missing parts filled', () => {
+test('stored data is normalized: malformed entries and old keys dropped, missing parts filled', () => {
+  // Saved prompts and checklist ticks come from earlier versions of the app.
   const raw = JSON.stringify({
     schemaVersion: 1,
     progress: { completedSteps: ['a', 'a', 3] },
-    checklist: { ok: true, bad: 'yes' },
-    prompts: [{ id: 'x', title: 'T', text: 'P', savedAt: 's' }, { id: 'y' }],
+    checklist: { ok: true },
+    prompts: [{ id: 'x', title: 'T', text: 'P', savedAt: 's' }],
   });
   const store = createStore({ backend: new MemoryBackend({ [STORAGE_KEY]: raw }) });
-  const state = store.getState();
-  assert.equal(state.profile, null);
-  assert.deepEqual(state.progress.completedSteps, ['a']);
-  assert.deepEqual(state.checklist, { ok: true });
-  assert.deepEqual(state.prompts.map((p) => p.id), ['x']);
+  assert.deepEqual(store.getState(), { schemaVersion: 1, profile: null, progress: { completedSteps: ['a'] } });
 });
 
 test('step progress toggles without duplicates', () => {
@@ -109,17 +99,6 @@ test('step progress toggles without duplicates', () => {
   store.setStepDone('b', true);
   store.setStepDone('a', false);
   assert.deepEqual(store.getCompletedSteps(), ['b']);
-});
-
-test('saved prompts need a title and text, and can be removed', () => {
-  const store = createStore(Object.assign({ backend: new MemoryBackend() }, fixed()));
-  assert.throws(() => store.addPrompt({ title: ' ', text: 'x' }), TypeError);
-  assert.throws(() => store.addPrompt({ title: 'x' }), TypeError);
-  const p = store.addPrompt({ title: 'T', text: 'P' });
-  assert.equal(p.stepId, null);
-  assert.equal(store.removePrompt(p.id), true);
-  assert.equal(store.removePrompt(p.id), false);
-  assert.deepEqual(store.listPrompts(), []);
 });
 
 test('returned data is a copy and cannot mutate the store', () => {
@@ -132,9 +111,9 @@ test('returned data is a copy and cannot mutate the store', () => {
 });
 
 test('export and replace round-trip; invalid data is rejected', () => {
-  const a = createStore(Object.assign({ backend: new MemoryBackend() }, fixed()));
+  const a = createStore({ backend: new MemoryBackend() });
   a.saveProfile({ domain: 'automation-testing', os: 'macos' });
-  a.addPrompt({ title: 'T', text: 'P' });
+  a.setStepDone('environment', true);
   const exported = a.exportState();
 
   const b = createStore({ backend: new MemoryBackend() });

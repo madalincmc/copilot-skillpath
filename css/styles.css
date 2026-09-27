@@ -662,8 +662,7 @@ progress::-moz-progress-bar {
 }
 
 /* Prompt card */
-.prompt-card,
-.saved-prompt {
+.prompt-card {
   display: grid;
   gap: 10px;
   padding: 14px 16px;
@@ -750,32 +749,23 @@ progress::-moz-progress-bar {
   font-size: 0.8125rem;
 }
 
-/* My Prompts */
-.prompt-group h2 {
-  margin: 24px 0 8px;
-  font-size: 1.125rem;
-}
-
-.saved-list {
+/* Start callout on the Starter Path (no profile yet) */
+.start-callout {
   display: grid;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 12px;
 }
 
-.saved-prompt {
+.start-callout p {
+  margin: 0;
+}
+
+.start-callout .preset {
   background: var(--surface);
 }
 
-.saved-prompt .prompt-text {
-  background: var(--bg);
-}
-
-.saved-prompt-header .meta {
-  margin: 2px 0 0;
-  color: var(--text-muted);
-  font-size: 0.8125rem;
+.start-callout > a {
+  justify-self: start;
+  font-size: 0.875rem;
 }
 
 /* Prompt Library */
@@ -893,6 +883,60 @@ progress::-moz-progress-bar {
 }
 
 .wizard-screen > .hint {
+  margin: 0;
+}
+
+.reference-files {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.reference-files ul {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reference-files li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.reference-file-info {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.reference-file-info .hint {
+  margin: 0;
+}
+
+.reference-preview summary {
+  width: fit-content;
+  color: var(--accent);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.reference-preview .prompt-text {
+  margin-top: 8px;
+  max-height: 240px;
+}
+
+.reference-files > .hint {
   margin: 0;
 }
 

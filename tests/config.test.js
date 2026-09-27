@@ -1,8 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { loadCore } = require('./helpers/load');
+const { loadCore, testProfiles } = require('./helpers/load');
 
 const SP = loadCore();
+const P = testProfiles(SP);
 const config = SP.config;
 
 test('configuration has no authoring errors', () => {
@@ -47,7 +48,7 @@ test('sanitizeProfile drops hidden fields and unavailable options, cascading', (
 });
 
 test('validateProfile reports required, visible fields only', () => {
-  const profile = config.applyPreset('qa-manual-to-automation-windows');
+  const profile = P.playwright;
   assert.deepEqual(config.validateProfile(profile), { valid: true, errors: {} });
 
   const incomplete = Object.assign({}, profile, { framework: 'other', timeAmount: '0' });
@@ -67,7 +68,7 @@ test('every preset produces a valid profile', () => {
 });
 
 test('buildPromptContext resolves labels and derived variables', () => {
-  const profile = config.applyPreset('qa-manual-to-automation-windows');
+  const profile = P.playwright;
   const ctx = config.buildPromptContext(profile);
   assert.equal(ctx.domain.label, 'Automation Testing');
   assert.equal(ctx.framework.label, 'Playwright');
@@ -99,10 +100,10 @@ test('Automation Testing Starter Path has steps 0-10 with step 10 optional', () 
 });
 
 test('the Notebook setup wizard renders with the profile', () => {
-  const ctx = config.buildPromptContext(config.applyPreset('qa-selenium-java-intermediate'));
+  const ctx = config.buildPromptContext(P.seleniumIntermediate);
   const wizard = config.getWizard('notebook-setup');
-  assert.deepEqual(wizard.screens.map((s) => s.id), ['create', 'instructions', 'plan']);
-  const create = wizard.screens[0].text.map((t) => SP.engine.renderText(t, ctx));
+  assert.deepEqual(wizard.screens.map((s) => s.id), ['references', 'create', 'instructions', 'plan']);
+  const create = wizard.screens[1].text.map((t) => SP.engine.renderText(t, ctx));
   assert.match(create[1], /"Learning Selenium WebDriver"/);
   assert.deepEqual(wizard.screens.map((s) => s.templateId).filter(Boolean), ['setup.notebook-instructions', 'setup.initialize-workspace']);
 });
@@ -116,4 +117,10 @@ test('validateConfig catches an unknown wizard', () => {
   } finally {
     step.wizardId = original;
   }
+});
+
+test('there are exactly two starter presets: Playwright + JavaScript and Selenium + Java', () => {
+  const presets = config.listPresets('automation-testing');
+  assert.deepEqual(presets.map((p) => [p.values.framework, p.values.language]), [['playwright', 'javascript'], ['selenium', 'java']]);
+  for (const p of presets) assert.equal(p.values.experienceLevel, 'beginner');
 });

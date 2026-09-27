@@ -1,6 +1,6 @@
 /*
  * Prompt card: shows a generated prompt with its "when to use" text, optional prompt-level inputs,
- * character count, Copy, and Save to My Prompts. Used by the Starter Path and the Prompt Library.
+ * character count, and Copy. Used by the Starter Path, the setup wizard, and the Prompt Library.
  *
  * Typing in an input only updates this card, so the rest of the page (and its state) is untouched.
  */
@@ -23,13 +23,11 @@
    *   step           Starter Path step (for step variables and saving).
    *   context        Prompt context from SP.config.buildPromptContext.
    *   domainId       For naming missing profile fields.
-   *   store          Store, for Save to My Prompts.
-   *   saveTitle      Title used when saving.
    *   headingLevel   2-4, default 3.
    *   hideDescription  Hide the "when to use" text when the surrounding page already explains it.
    */
   function promptCard(options) {
-    const { template, step, context, store } = options;
+    const { template, step, context } = options;
     const Heading = 'h' + (options.headingLevel || 3);
 
     if (!template) {
@@ -45,7 +43,6 @@
     const status = h('span', { class: 'action-status', role: 'status', 'aria-live': 'polite' });
     const warning = h('div', { class: 'prompt-warning', hidden: true });
     const copyButton = h('button', { type: 'button', class: 'button' }, 'Copy prompt');
-    const saveButton = h('button', { type: 'button', class: 'button button-secondary' }, 'Save to My Prompts');
     let current = null;
 
     function update() {
@@ -55,7 +52,6 @@
 
       const blocked = current.missing.length > 0;
       copyButton.disabled = blocked;
-      saveButton.disabled = blocked;
       SP.dom.clear(warning);
       warning.hidden = !blocked;
       if (blocked) {
@@ -69,17 +65,6 @@
     copyButton.addEventListener('click', async () => {
       const ok = await SP.browser.copyText(current.text);
       flash(status, ok ? 'Copied. Paste it into your Copilot Notebook.' : 'Copy failed. Select the prompt text and copy it manually.');
-    });
-
-    saveButton.addEventListener('click', () => {
-      store.addPrompt({
-        title: options.saveTitle || template.title,
-        text: current.text,
-        stepId: step ? step.id : null,
-        templateId: template.id,
-        templateVersion: template.version,
-      });
-      flash(status, 'Saved to My Prompts.');
     });
 
     let inputsBlock = null;
@@ -123,7 +108,7 @@
       inputsBlock,
       warning,
       output,
-      h('div', { class: 'prompt-actions' }, copyButton, saveButton, count, status));
+      h('div', { class: 'prompt-actions' }, copyButton, count, status));
   }
 
   SP.ui = Object.assign(SP.ui || {}, { promptCard });

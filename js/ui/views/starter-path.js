@@ -42,21 +42,12 @@
   }
 
   function stepPrompts(step, context, app) {
-    const store = app.store;
-    const common = { step, context, domainId: context.domain.value, store };
-    const card = (id, fallbackTitle, saveTitle, headingLevel) => {
-      const template = SP.templates.get(id);
-      return promptCard(Object.assign({}, common, {
-        template,
-        fallbackTitle,
-        saveTitle: template ? saveTitle(template) : undefined,
-        headingLevel,
-      }));
-    };
+    const common = { step, context, domainId: context.domain.value };
+    const card = (id, fallbackTitle, headingLevel) => promptCard(Object.assign({}, common, { template: SP.templates.get(id), fallbackTitle, headingLevel }));
     const blocks = [];
 
     if (step.mainTemplateId) {
-      blocks.push(card(step.mainTemplateId, 'Guide me through this step', () => 'Step ' + step.number + ' · ' + step.title));
+      blocks.push(card(step.mainTemplateId, 'Guide me through this step'));
     }
 
     const helperIds = config.getHelperTemplateIds(step);
@@ -64,7 +55,7 @@
       blocks.push(h('details', { class: 'helpers' },
         h('summary', null, 'Need help with this step?'),
         h('div', { class: 'helpers-body' },
-          helperIds.map((id) => card(id, HELPER_TITLES[id] || 'Helper prompt', (t) => t.title + ' · Step ' + step.number + ' · ' + step.title, 4)))));
+          helperIds.map((id) => card(id, HELPER_TITLES[id] || 'Helper prompt', 4)))));
     }
     return blocks;
   }
@@ -132,6 +123,18 @@
     focusStep(focusId);
   }
 
+  /** Shown before a profile exists: the presets as one-click starts, or a custom profile. */
+  function startCallout() {
+    return h('div', { class: 'callout start-callout' },
+      h('p', null, h('strong', null, 'Start here.'), ' Pick your stack; you can review the details before saving.'),
+      h('div', { class: 'preset-grid' }, config.listPresets(DEFAULT_DOMAIN).map((preset) => h('button', {
+        type: 'button',
+        class: 'preset',
+        onClick: () => SP.ui.openProfileWithPreset(preset.id),
+      }, h('strong', null, preset.label), h('span', null, preset.description)))),
+      h('a', { href: '#/profile' }, 'Or set up a custom profile'));
+  }
+
   function starterPathView(app) {
     const store = app.store;
     const profile = store.getProfile();
@@ -140,7 +143,8 @@
     const next = findNextStep(path, done);
     const context = profile ? config.buildPromptContext(profile) : null;
 
-    if (!openedNextOnce && next) {
+    // Without a profile the steps have no prompts yet, so nothing opens by itself.
+    if (!openedNextOnce && next && profile) {
       openSteps.add(next.id);
       openedNextOnce = true;
     }
@@ -167,9 +171,7 @@
     return h('section', null,
       pageHeader(path.title,
         'Set up your Copilot Notebook, then follow the steps. Each step gives you a prompt to paste into the same Notebook.'),
-      profile ? null : h('div', { class: 'callout' },
-        h('p', null, 'Start by creating your learning profile, so every prompt matches your setup.'),
-        h('a', { class: 'button', href: '#/profile' }, 'Create my learning profile')),
+      profile ? null : startCallout(),
       h('div', { class: 'progress' },
         h('div', { class: 'progress-text' }, h('span', null, doneCount + ' of ' + required.length + ' steps done'), path.steps.some((s) => s.optional) ? h('span', { class: 'hint' }, 'Optional steps are not counted.') : null),
         h('progress', { max: String(required.length), value: String(doneCount), 'aria-label': 'Starter Path progress' })),
