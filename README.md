@@ -32,7 +32,11 @@ js/config/presets.js       One-click profile presets
 js/config/starter-path.js  Starter Path steps and the reference checklist
 js/config/helpers.js       Visibility, sanitizing, validation, prompt context, config integrity check
 js/engine/prompt-engine.js Template syntax, validation, and generation (pure functions)
-js/templates/registry.js   Template registry (templates are added by content files)
+js/templates/registry.js   Template registry
+js/templates/setup.js      Step 0: Notebook instructions, initialize-workspace prompt
+js/templates/steps.js      Starter Path main prompts, steps 1-10
+js/templates/helpers.js    Helper prompts shown on every step
+js/templates/library.js    Prompt Library prompts and groups
 js/storage/storage.js      Versioned localStorage store with in-memory fallback
 js/export/prompt-pack.js   Prompt Pack Markdown builder (pure)
 js/export/data-file.js     JSON data file export/import (pure)
@@ -53,6 +57,12 @@ tests/                     node:test suites
 * **New template:** create a file in `js/templates/`, call `SkillPath.templates.register({...})`, and add a `<script>` tag after `registry.js` in `index.html`.
 
 The schemas are documented at the top of each config file and of `prompt-engine.js`. Run `SkillPath.config.validateConfig({ checkTemplates: true })` in the browser console to check that every referenced template exists.
+
+### Writing prompts
+
+* **Step 0 prompts carry the full profile.** Every other prompt stays short: it refers to "my setup from this Notebook" and repeats a profile value only when it changes the answer (e.g. OS for installing tools).
+* **No technology names in templates.** Framework, language, and IDE come from the profile; Copilot supplies the stack-specific commands. `tests/content.test.js` enforces this, along with the length limits.
+* **Copilot Notebooks facts the content relies on:** instructions are set via More options (…) → Instructions. References can be .docx, .pptx, .xlsx, .pdf, .loop, .page, .txt, .rtf files, OneNote pages, or links to organization content. Public web pages and .md files can't be added, which is why the Prompt Pack is exported as .txt by default.
 
 ### Template syntax
 

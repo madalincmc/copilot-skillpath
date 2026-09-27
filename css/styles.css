@@ -791,8 +791,103 @@ progress::-moz-progress-bar {
   font-size: 0.8125rem;
 }
 
+/* Export buttons in page headers */
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 12px;
+  max-width: 280px;
+}
+
+.export-actions .button-link {
+  font-size: 0.875rem;
+}
+
+.export-actions .hint {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+/* Step guide */
+.guide {
+  padding: 14px 16px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+}
+
+.guide h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.guide ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+/* Prompt Library */
+.library-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.library-nav a {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.library-nav a:hover {
+  border-color: var(--accent);
+}
+
+.library-group {
+  scroll-margin-top: 16px;
+}
+
+.library-group h2 {
+  margin: 24px 0 8px;
+  font-size: 1.125rem;
+}
+
+.library-group h2:focus {
+  outline: none;
+}
+
+.library-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.library-cards .prompt-card {
+  background: var(--surface);
+}
+
 @media (max-width: 560px) {
   .step-body {
     padding-left: 16px;
+  }
+
+  .export-actions {
+    justify-content: flex-start;
+  }
+
+  .export-actions .hint {
+    text-align: left;
   }
 }

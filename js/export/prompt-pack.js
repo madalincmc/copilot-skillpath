@@ -38,7 +38,7 @@
       '## How to use this Prompt Pack',
       '',
       '- Copy a prompt and paste it into your Copilot Notebook.',
-      '- Or upload this file to your Notebook as a reference and ask Copilot, for example: "Use the *I\'m stuck* prompt for Step 4 from my Prompt Pack."',
+      '- Or add the .txt version of this file to your Notebook as a reference and ask Copilot, for example: "Use the *I\'m stuck* prompt for Step 4 from my Prompt Pack."',
       '- Prompts with [PLACEHOLDERS] need you to fill in the part in brackets before sending.',
       ''
     );
@@ -78,8 +78,9 @@
     return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
   }
 
-  function promptPackFilename(date) {
-    return 'copilot-skillpath-prompt-pack-' + date + '.md';
+  /** format: 'txt' (can be added as a Notebook reference) or 'md' (for Markdown viewers). Same content. */
+  function promptPackFilename(date, format) {
+    return 'copilot-skillpath-prompt-pack-' + date + '.' + (format === 'md' ? 'md' : 'txt');
   }
 
   SP.exports = Object.assign(SP.exports || {}, { buildPromptPack, promptPackFilename, stepTemplates, fence });

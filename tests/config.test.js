@@ -98,9 +98,11 @@ test('Automation Testing Starter Path has steps 0-10 with step 10 optional', () 
   assert.ok(config.getChecklist(path.steps[0].checklistId));
 });
 
-test('checklist items render with the profile', () => {
+test('checklist items and guide steps render with the profile', () => {
   const ctx = config.buildPromptContext(config.applyPreset('qa-selenium-java-intermediate'));
   const items = config.getChecklist('references').items.map((i) => SP.engine.renderText(i.text, ctx));
-  assert.equal(items[0], 'Official Selenium WebDriver documentation');
-  assert.equal(items[1], 'Official Java documentation');
+  assert.ok(items.length > 0 && items.every(Boolean));
+  assert.match(items[0], /Prompt Pack.*\.txt/);
+  const steps = config.getGuide('notebook-setup').steps.map((s) => SP.engine.renderText(s, ctx));
+  assert.match(steps[1], /"Learning Selenium WebDriver"/);
 });

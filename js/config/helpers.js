@@ -162,6 +162,10 @@
     return config.checklists.find((c) => c.id === checklistId) || null;
   }
 
+  function getGuide(guideId) {
+    return (config.guides || []).find((g) => g.id === guideId) || null;
+  }
+
   function getHelperTemplateIds(step) {
     return step.helperTemplateIds || config.defaultHelperTemplateIds;
   }
@@ -242,6 +246,7 @@
         if (!step.title || !step.summary || !step.definitionOfDone) errors.push(where + 'title, summary and definitionOfDone are required');
         if (!step.mainTemplateId && !step.setupTemplateIds) errors.push(where + 'needs mainTemplateId or setupTemplateIds');
         if (step.checklistId && !getChecklist(step.checklistId)) errors.push(where + 'unknown checklist "' + step.checklistId + '"');
+        if (step.guideId && !getGuide(step.guideId)) errors.push(where + 'unknown guide "' + step.guideId + '"');
         [step.mainTemplateId].concat(step.setupTemplateIds || [], getHelperTemplateIds(step)).filter(Boolean).forEach((id) => templateIds.add(id));
       });
     }
@@ -254,6 +259,16 @@
           errors.push('checklist ' + checklist.id + '.' + item.id + ': ' + e.message);
         }
       }
+    }
+
+    for (const guide of config.guides || []) {
+      guide.steps.forEach((text, i) => {
+        try {
+          SP.engine.parse(text);
+        } catch (e) {
+          errors.push('guide ' + guide.id + ' step ' + (i + 1) + ': ' + e.message);
+        }
+      });
     }
 
     if (opts.checkTemplates) {
@@ -281,6 +296,7 @@
     applyPreset,
     getStarterPath,
     getChecklist,
+    getGuide,
     getHelperTemplateIds,
     validateConfig,
   });

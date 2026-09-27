@@ -25,21 +25,23 @@
     }, 3000);
   }
 
-  function exportPromptPack(store) {
+  function exportPromptPack(store, format) {
     const date = SP.browser.today();
     const markdown = SP.exports.buildPromptPack({ profile: store.getProfile(), savedPrompts: store.listPrompts(), date });
-    SP.browser.downloadFile(SP.exports.promptPackFilename(date), markdown, 'text/markdown;charset=utf-8');
+    const type = format === 'md' ? 'text/markdown;charset=utf-8' : 'text/plain;charset=utf-8';
+    SP.browser.downloadFile(SP.exports.promptPackFilename(date, format), markdown, type);
   }
 
+  /** .txt is the main export because Copilot Notebooks accept .txt references but not .md. */
   function promptPackButton(app) {
-    return h('button', {
-      type: 'button',
-      class: 'button button-secondary',
-      onClick: () => {
-        exportPromptPack(app.store);
-        app.announce('Prompt Pack downloaded.');
-      },
-    }, 'Export Prompt Pack (.md)');
+    const download = (format) => () => {
+      exportPromptPack(app.store, format);
+      app.announce('Prompt Pack downloaded.');
+    };
+    return h('div', { class: 'export-actions' },
+      h('button', { type: 'button', class: 'button button-secondary', onClick: download('txt') }, 'Export Prompt Pack'),
+      h('button', { type: 'button', class: 'button-link', onClick: download('md'), title: 'Same content, as Markdown' }, 'or as .md'),
+      h('p', { class: 'hint' }, 'The .txt file can be added to your Notebook as a reference.'));
   }
 
   function formatDate(iso) {

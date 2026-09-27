@@ -5,29 +5,6 @@ const { loadCore } = require('./helpers/load');
 const SP = loadCore();
 const { buildPromptPack, promptPackFilename, fence, serializeDataFile, parseDataFile, summarizeData, dataFilename } = SP.exports;
 
-// Fixture templates standing in for the real content (Content milestone).
-SP.templates.register({
-  id: 'step.first-test',
-  version: 1,
-  category: 'step',
-  title: 'Guide me through this step',
-  description: 'Use this when you are ready to write your first test.',
-  domains: ['automation-testing'],
-  requiredVariables: ['framework'],
-  optionalVariables: [],
-  inputs: [],
-  body: 'Using my {{framework}} setup from this Notebook, guide me through: {{step.title}}.',
-});
-SP.templates.register({
-  id: 'helper.stuck',
-  version: 3,
-  category: 'helper',
-  title: "I'm stuck",
-  domains: ['*'],
-  inputs: [{ id: 'error', label: 'Error', placeholder: '[PASTE THE ERROR HERE]' }],
-  body: 'I am stuck on {{step.title}}:\n{{input:error}}',
-});
-
 const profile = SP.config.applyPreset('qa-manual-to-automation-windows');
 
 test('Prompt Pack includes profile, step prompts with headings, and saved prompts', () => {
@@ -45,12 +22,12 @@ test('Prompt Pack includes profile, step prompts with headings, and saved prompt
 
   assert.match(md, /### Step 4 — Write my first test\n/);
   assert.match(md, /#### Guide me through this step \(Step 4\)\n\n_When to use:_ Use this when/);
-  assert.match(md, /Using my Playwright setup from this Notebook, guide me through: Write my first test\./);
+  assert.match(md, /Using my setup from this Notebook, guide me to write my first automated test against my practice target\./);
+  assert.match(md, /#### Notebook instructions \(Step 0\)/);
   assert.match(md, /#### I'm stuck \(Step 7\)/);
-  assert.match(md, /\[PASTE THE ERROR HERE\]/);
-  // Templates that are not registered are skipped: step 2 only has the helper.
-  assert.match(md, /#### I'm stuck \(Step 2\)/);
-  assert.doesNotMatch(md, /Guide me through this step \(Step 2\)/);
+  assert.match(md, /\[DESCRIBE WHAT YOU DID AND PASTE THE ERROR OR OUTPUT HERE\]/);
+  assert.match(md, /### Step 10 — Run tests in CI \(optional\)/);
+  assert.match(md, /add the \.txt version of this file to your Notebook/);
 
   assert.match(md, /## My saved prompts\n\n### My custom prompt\n\n_Saved on 2026-09-30\._\n\n````text\nUse ```code``` here\n````/);
   assert.doesNotMatch(md, /\n{3,}/);
@@ -74,7 +51,8 @@ test('fence is longer than any backtick run in the text', () => {
 });
 
 test('file names include the date', () => {
-  assert.equal(promptPackFilename('2026-10-01'), 'copilot-skillpath-prompt-pack-2026-10-01.md');
+  assert.equal(promptPackFilename('2026-10-01'), 'copilot-skillpath-prompt-pack-2026-10-01.txt');
+  assert.equal(promptPackFilename('2026-10-01', 'md'), 'copilot-skillpath-prompt-pack-2026-10-01.md');
   assert.equal(dataFilename('2026-10-01'), 'copilot-skillpath-data-2026-10-01.json');
 });
 

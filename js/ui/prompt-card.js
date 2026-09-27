@@ -107,7 +107,9 @@
         },
       }, 'Clear inputs');
       inputsBlock = h('div', { class: 'prompt-inputs' },
-        h('p', { class: 'hint' }, 'Fill these in now, or leave them empty and complete the [placeholder] in Copilot.'),
+        h('p', { class: 'hint' }, template.inputs.length === 1
+          ? 'Fill this in now, or leave it empty and complete the [placeholder] in Copilot.'
+          : 'Fill these in now, or leave them empty and complete the [placeholders] in Copilot.'),
         fields,
         reset);
     }

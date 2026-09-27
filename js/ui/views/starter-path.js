@@ -34,7 +34,7 @@
     const ticks = store.getChecklist();
     return h('section', { class: 'checklist' },
       h('h3', null, list.title),
-      h('p', { class: 'hint' }, 'Add these to your Notebook as references. Tick them off as you go.'),
+      h('p', { class: 'hint' }, 'Add these to your Notebook with Add references. Tick them off as you go.'),
       h('ul', null, list.items.map((item) => {
         const text = SP.engine.renderText(item.text, context);
         if (!text) return null;
@@ -48,6 +48,13 @@
           }),
           h('label', { for: id }, text));
       })));
+  }
+
+  function guide(guideId, context) {
+    const g = config.getGuide(guideId);
+    return h('section', { class: 'guide' },
+      h('h3', null, g.title),
+      h('ol', null, g.steps.map((text) => h('li', null, SP.engine.renderText(text, context)))));
   }
 
   function stepPrompts(step, context, app) {
@@ -64,10 +71,13 @@
     };
     const blocks = [];
 
-    for (const id of step.setupTemplateIds || []) {
-      blocks.push(card(id, SETUP_TITLES[id] || 'Setup prompt', (t) => t.title));
-    }
+    // Step 0 follows its guide's order: instructions, then references, then the initialize prompt.
+    const setupIds = step.setupTemplateIds || [];
+    const setupCard = (id) => card(id, SETUP_TITLES[id] || 'Setup prompt', (t) => t.title);
+    if (step.guideId) blocks.push(guide(step.guideId, context));
+    if (setupIds.length) blocks.push(setupCard(setupIds[0]));
     if (step.checklistId) blocks.push(checklist(step, context, store));
+    setupIds.slice(1).forEach((id) => blocks.push(setupCard(id)));
     if (step.mainTemplateId) {
       blocks.push(card(step.mainTemplateId, 'Guide me through this step', () => 'Step ' + step.number + ' · ' + step.title));
     }
