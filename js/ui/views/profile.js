@@ -224,8 +224,16 @@
           app.announce('Data imported.');
         },
       }, 'Replace my data');
+      const rows = SP.exports.profileRows(data.profile);
+      const hasFreeText = rows.some((row) => row.freeText);
       showImportPanel(
         h('p', null, '"' + file.name + '" contains ' + SP.exports.summarizeData(data) + '.'),
+        rows.length ? h('dl', { class: 'import-preview' }, rows.map((row) => [
+          h('dt', null, row.label),
+          h('dd', { class: row.freeText ? 'is-free-text' : null }, row.value),
+        ])) : null,
+        hasFreeText ? h('p', { class: 'import-warning' },
+          'The highlighted answers were typed by whoever made this file, and they are copied into your Copilot prompts as written. Import only if they look right to you.') : null,
         h('p', null, 'Importing replaces your current profile and progress on this computer. This cannot be undone.'),
         h('div', { class: 'form-actions' },
           confirmButton,
