@@ -8,8 +8,7 @@
  *   definitionOfDone   How the user knows the step is finished.
  *   mainTemplateId     Template for "Guide me through this step" (steps 1+).
  *   setupTemplateIds   Step 0 only: Notebook instructions and initialize-workspace templates.
- *   checklistId        Step 0 only: recommended reference checklist.
- *   guideId            Optional how-to guide shown at the top of the step (config.guides).
+ *   wizardId           Step 0 only: the guided setup (config.wizards) that replaces the step's prompts.
  *   helperTemplateIds  Optional override of config.defaultHelperTemplateIds.
  *   optional           Shown as optional; not required to finish the path.
  */
@@ -31,11 +30,10 @@
           number: 0,
           title: 'Set up my Copilot Notebook',
           summary: 'Create the Copilot Notebook that will hold your whole learning journey, and give Copilot your context once.',
-          definitionOfDone: 'Notebook created, instructions set, references added, and the workspace initialized with a learning plan.',
+          definitionOfDone: 'Notebook created, instructions set, and Copilot has created your learning plan.',
           setupTemplateIds: ['setup.notebook-instructions', 'setup.initialize-workspace'],
-          checklistId: 'references',
-          guideId: 'notebook-setup',
-          helperTemplateIds: ['helper.stuck'],
+          wizardId: 'notebook-setup',
+          helperTemplateIds: [],
         },
         {
           id: 'environment',
@@ -122,35 +120,47 @@
     },
   ];
 
-  // Notebook references can be files (.docx, .pptx, .xlsx, .pdf, .loop, .page, .txt, .rtf), OneNote pages,
-  // or links to organization content (OneDrive/SharePoint). Public web pages cannot be added, so official
-  // documentation is not a reference item; the Notebook instructions ask Copilot to follow it instead.
-  // Items are phrased with {{variables}} and rendered by the prompt engine at display time.
-  config.checklists = [
-    {
-      id: 'references',
-      title: 'Recommended references for your Notebook',
-      items: [
-        { id: 'prompt-pack-txt', text: 'Your Prompt Pack from this app, exported as .txt (use the Export Prompt Pack button)' },
-        { id: 'notes-page', text: 'A notes document or OneNote page for this journey, where you keep your own notes and solutions' },
-        { id: 'team-guidelines', text: 'Your team\'s testing guidelines or automation project docs from OneDrive or SharePoint, if you have them' },
-        { id: 'learning-plan', text: 'Your learning plan, once Copilot creates it: save it as a page or document and add it back as a reference' },
-      ],
-    },
-  ];
-
-  // Short how-to guides shown inside a step. Text may use {{variables}}.
-  config.guides = [
+  /*
+   * Guided setups: short linear wizards with one action per screen.
+   * Screen: { id, title, text: [paragraphs with {{variables}}], templateId?, link?: { href, label }, note? }
+   * Menu names follow Microsoft's Copilot Notebooks documentation (September 2026).
+   */
+  config.wizards = [
     {
       id: 'notebook-setup',
-      title: 'How to set up your Copilot Notebook',
-      steps: [
-        'Open the Microsoft 365 Copilot app (m365.cloud.microsoft) and select Notebooks in the left navigation. If you don\'t see it, open the app launcher and select Notebooks.',
-        'Select All notebooks, then New notebook. Name it after this journey, for example "Learning {{framework}}", and select Create.',
-        'In the notebook, select More options (…) in the upper-right corner, then Instructions. Paste the Notebook instructions prompt below and save.',
-        'Select Add references and add the items from the checklist below. You can upload files, pick them from OneDrive, or search for SharePoint content. Public web pages can\'t be added, but Copilot can still follow the official documentation.',
-        'In the notebook chat, paste the Initialize prompt below. Copilot reviews your context and creates your learning plan.',
-        'Use this same notebook for every step from now on, so Copilot remembers your setup and progress.',
+      title: 'Set up your Copilot Notebook',
+      intro: 'Three short steps. Your Notebook becomes the place where Copilot remembers your setup and guides you through every step.',
+      screens: [
+        {
+          id: 'create',
+          title: 'Create your Notebook',
+          text: [
+            'Open the Microsoft 365 Copilot app and select Notebooks in the left navigation. If you don\'t see it, open the app launcher and select Notebooks.',
+            'Select All notebooks, then New notebook. Name it "Learning {{framework}}" and select Create.',
+          ],
+          link: { href: 'https://m365.cloud.microsoft', label: 'Open Microsoft 365 Copilot' },
+          doneLabel: 'I created my Notebook',
+        },
+        {
+          id: 'instructions',
+          title: 'Tell Copilot who you are',
+          text: [
+            'In your Notebook, select More options (…) in the upper-right corner, then Instructions.',
+            'Copy the instructions below, paste them there, and save. Copilot will use them in every answer in this Notebook.',
+          ],
+          templateId: 'setup.notebook-instructions',
+          doneLabel: 'I saved the instructions',
+        },
+        {
+          id: 'plan',
+          title: 'Start your learning plan',
+          text: [
+            'Copy this prompt and paste it into the Notebook chat. Copilot reviews your instructions and creates your learning plan.',
+          ],
+          templateId: 'setup.initialize-workspace',
+          note: 'Optional, any time later: with Add references you can give the Notebook your own notes or your team\'s testing guidelines from OneDrive or SharePoint.',
+          doneLabel: 'Finish setup',
+        },
       ],
     },
   ];

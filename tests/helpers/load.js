@@ -16,7 +16,6 @@ const CORE_SCRIPTS = [
   'js/templates/helpers.js',
   'js/templates/library.js',
   'js/storage/storage.js',
-  'js/export/prompt-pack.js',
   'js/export/data-file.js',
 ];
 

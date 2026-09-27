@@ -24,14 +24,13 @@
     { id: 'library', label: 'Prompt Library' },
     { id: 'profile', label: 'My Profile' },
     { id: 'certifications', label: 'Certifications', badge: 'Soon' },
+    // Not in the menu; highlights its parent instead.
+    { id: 'setup', label: 'Notebook setup', hidden: true, navParent: 'path' },
   ];
   const DEFAULT_ROUTE = 'path';
 
   // Views not built yet. Feature files override these by registering the same id.
   const placeholderViews = {
-    library: () => h('section', null,
-      pageHeader('Prompt Library', 'More prompts for planning, learning, practice, debugging, and review, for when you have finished the Starter Path.'),
-      emptyState(h('p', null, 'The Prompt Library is on its way.'))),
     certifications: () => h('section', null,
       pageHeader('Certifications', 'Prepare for a certification with a dedicated Notebook, study plan, and practice prompts.'),
       emptyState(h('p', null, 'Coming soon.'))),
@@ -42,9 +41,11 @@
     return routes.some((r) => r.id === id) ? id : DEFAULT_ROUTE;
   }
 
-  function renderNav(nav, active) {
+  function renderNav(nav, routeId) {
+    const current = routes.find((r) => r.id === routeId);
+    const active = current.navParent || current.id;
     clear(nav);
-    nav.appendChild(h('ul', null, routes.map((route) => h('li', null,
+    nav.appendChild(h('ul', null, routes.filter((r) => !r.hidden).map((route) => h('li', null,
       h('a', { href: '#/' + route.id, 'aria-current': route.id === active ? 'page' : null },
         route.label,
         route.badge ? h('span', { class: 'tag' }, route.badge) : null)))));

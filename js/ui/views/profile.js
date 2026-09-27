@@ -142,8 +142,8 @@
       const isFirstProfile = !store.getProfile();
       store.saveProfile(config.sanitizeProfile(draft));
       if (isFirstProfile) {
-        app.announce('Profile saved. Start with Step 0.');
-        location.hash = '#/path';
+        app.announce('Profile saved. Next: set up your Copilot Notebook.');
+        location.hash = '#/setup';
       } else {
         flash(formStatus, 'Profile saved. Your prompts now use these details.');
       }

@@ -6,7 +6,7 @@
   'use strict';
 
   const { h } = SP.dom;
-  const { pageHeader, emptyState, flash, promptPackButton, formatDate } = SP.ui;
+  const { pageHeader, emptyState, flash, formatDate } = SP.ui;
   const config = SP.config;
 
   function findStep(stepId) {
@@ -100,11 +100,9 @@
   function myPromptsView(app) {
     const store = app.store;
     const prompts = store.listPrompts();
-    const hasProfile = !!store.getProfile();
 
     const header = pageHeader('My Prompts',
-      'Prompts you saved, ready to copy again. Export them all as a Prompt Pack to keep a copy or upload it to your Notebook.',
-      prompts.length || hasProfile ? promptPackButton(app) : null);
+      'Prompts you saved, ready to copy again into your Copilot Notebook.');
 
     if (!prompts.length) {
       return h('section', null, header, emptyState(

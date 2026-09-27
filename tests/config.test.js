@@ -95,14 +95,25 @@ test('Automation Testing Starter Path has steps 0-10 with step 10 optional', () 
   assert.deepEqual(path.steps.map((s) => s.number), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.equal(path.steps[0].id, 'notebook-setup');
   assert.deepEqual(path.steps.filter((s) => s.optional).map((s) => s.id), ['ci']);
-  assert.ok(config.getChecklist(path.steps[0].checklistId));
+  assert.ok(config.getWizard(path.steps[0].wizardId));
 });
 
-test('checklist items and guide steps render with the profile', () => {
+test('the Notebook setup wizard renders with the profile', () => {
   const ctx = config.buildPromptContext(config.applyPreset('qa-selenium-java-intermediate'));
-  const items = config.getChecklist('references').items.map((i) => SP.engine.renderText(i.text, ctx));
-  assert.ok(items.length > 0 && items.every(Boolean));
-  assert.match(items[0], /Prompt Pack.*\.txt/);
-  const steps = config.getGuide('notebook-setup').steps.map((s) => SP.engine.renderText(s, ctx));
-  assert.match(steps[1], /"Learning Selenium WebDriver"/);
+  const wizard = config.getWizard('notebook-setup');
+  assert.deepEqual(wizard.screens.map((s) => s.id), ['create', 'instructions', 'plan']);
+  const create = wizard.screens[0].text.map((t) => SP.engine.renderText(t, ctx));
+  assert.match(create[1], /"Learning Selenium WebDriver"/);
+  assert.deepEqual(wizard.screens.map((s) => s.templateId).filter(Boolean), ['setup.notebook-instructions', 'setup.initialize-workspace']);
+});
+
+test('validateConfig catches an unknown wizard', () => {
+  const step = config.getStarterPath('automation-testing').steps[0];
+  const original = step.wizardId;
+  step.wizardId = 'nope';
+  try {
+    assert.ok(config.validateConfig().some((e) => /unknown wizard "nope"/.test(e)));
+  } finally {
+    step.wizardId = original;
+  }
 });

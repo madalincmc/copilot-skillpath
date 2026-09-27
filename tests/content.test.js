@@ -39,7 +39,7 @@ test('step, helper, and library prompts stay short; setup prompts carry the cont
   }
 });
 
-test('templates, guides, and checklists contain no technology-specific names', () => {
+test('templates and wizard text contain no technology-specific names', () => {
   const fields = config.getFields('automation-testing');
   const names = ['framework', 'language', 'ide']
     .flatMap((id) => fields.find((f) => f.id === id).options)
@@ -47,8 +47,9 @@ test('templates, guides, and checklists contain no technology-specific names', (
     .map((o) => o.label);
   const sources = [];
   for (const t of SP.templates.list()) sources.push([t.id, [t.title, t.description, t.body, t.interaction, t.output].join('\n')]);
-  for (const g of config.guides) sources.push([g.id, g.steps.join('\n')]);
-  for (const c of config.checklists) sources.push([c.id, c.items.map((i) => i.text).join('\n')]);
+  for (const w of config.wizards) {
+    for (const screen of w.screens) sources.push([w.id + '.' + screen.id, [screen.title, screen.note].concat(screen.text).join('\n')]);
+  }
 
   for (const [id, text] of sources) {
     for (const name of names) assert.ok(!text.includes(name), id + ' mentions "' + name + '"');
@@ -98,8 +99,8 @@ test('every Library template belongs to a known group', () => {
   for (const t of library) assert.ok(groups.has(t.group), t.id);
 });
 
-test('guide text renders with the profile', () => {
+test('wizard text renders with the profile', () => {
   const context = config.buildPromptContext(config.applyPreset('qa-cypress-js-macos'));
-  const steps = config.getGuide('notebook-setup').steps.map((s) => SP.engine.renderText(s, context));
-  assert.match(steps[1], /"Learning Cypress"/);
+  const create = config.getWizard('notebook-setup').screens[0];
+  assert.match(SP.engine.renderText(create.text[1], context), /"Learning Cypress"/);
 });

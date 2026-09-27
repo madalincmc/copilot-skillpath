@@ -27,8 +27,10 @@ test('no ES modules, fetch, or network URLs in the app', () => {
   for (const file of ['index.html', ...listFiles('js', '.js'), ...listFiles('css', '.css')]) {
     const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
     assert.doesNotMatch(source, /\bfetch\(|XMLHttpRequest|\bimport\s*\(|^\s*import\s/m, file);
-    // Example URLs shown to users as placeholder text are allowed.
-    const urls = (source.match(/https?:\/\/[^\s"'<>)]+/g) || []).filter((u) => !/example\.com/.test(u));
+    // Allowed: example URLs in placeholder text, and the link users click to open Microsoft 365 Copilot
+    // (a link the user follows, not a request the app makes).
+    const allowed = [/^https:\/\/[\w.]*example\.com/, /^https:\/\/m365\.cloud\.microsoft$/];
+    const urls = (source.match(/https?:\/\/[^\s"'<>)]+/g) || []).filter((u) => !allowed.some((re) => re.test(u)));
     assert.deepEqual(urls, [], file);
   }
 });

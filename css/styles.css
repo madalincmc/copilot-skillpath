@@ -635,29 +635,6 @@ progress::-moz-progress-bar {
   justify-content: flex-end;
 }
 
-.checklist h3 {
-  margin: 0 0 4px;
-  font-size: 1rem;
-}
-
-.checklist ul {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.checklist li {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.checklist input {
-  margin-top: 4px;
-}
-
 .helpers {
   border-top: 1px solid var(--border);
   padding-top: 12px;
@@ -791,46 +768,6 @@ progress::-moz-progress-bar {
   font-size: 0.8125rem;
 }
 
-/* Export buttons in page headers */
-.export-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px 12px;
-  max-width: 280px;
-}
-
-.export-actions .button-link {
-  font-size: 0.875rem;
-}
-
-.export-actions .hint {
-  flex-basis: 100%;
-  margin: 0;
-  font-size: 0.8125rem;
-  text-align: right;
-}
-
-/* Step guide */
-.guide {
-  padding: 14px 16px;
-  background: var(--accent-soft);
-  border-radius: var(--radius);
-}
-
-.guide h3 {
-  margin: 0 0 8px;
-  font-size: 1rem;
-}
-
-.guide ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 22px;
-}
-
 /* Prompt Library */
 .library-nav ul {
   display: flex;
@@ -878,16 +815,88 @@ progress::-moz-progress-bar {
   background: var(--surface);
 }
 
+/* Notebook setup wizard */
+.wizard-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.wizard-progress li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizard-progress-number {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.wizard-progress .is-current {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.wizard-progress .is-current .wizard-progress-number {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.wizard-progress .is-done .wizard-progress-number {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.wizard-screen {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.wizard-screen h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.wizard-screen h2:focus {
+  outline: none;
+}
+
+.wizard-screen > p {
+  margin: 0;
+}
+
+.wizard-screen > .hint {
+  margin: 0;
+}
+
+.wizard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 @media (max-width: 560px) {
   .step-body {
     padding-left: 16px;
   }
 
-  .export-actions {
-    justify-content: flex-start;
-  }
-
-  .export-actions .hint {
-    text-align: left;
-  }
 }

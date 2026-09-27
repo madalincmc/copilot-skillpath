@@ -26,6 +26,7 @@
    *   store          Store, for Save to My Prompts.
    *   saveTitle      Title used when saving.
    *   headingLevel   2-4, default 3.
+   *   hideDescription  Hide the "when to use" text when the surrounding page already explains it.
    */
   function promptCard(options) {
     const { template, step, context, store } = options;
@@ -118,7 +119,7 @@
 
     return h('article', { class: 'prompt-card' },
       h(Heading, { class: 'prompt-title' }, template.title),
-      template.description ? h('p', { class: 'prompt-when' }, template.description) : null,
+      template.description && !options.hideDescription ? h('p', { class: 'prompt-when' }, template.description) : null,
       inputsBlock,
       warning,
       output,

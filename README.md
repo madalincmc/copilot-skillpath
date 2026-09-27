@@ -29,7 +29,7 @@ index.html                 App shell and script load order
 css/styles.css             Styles (light and dark)
 js/config/domains.js       Domains, field groups, fields, derived prompt variables
 js/config/presets.js       One-click profile presets
-js/config/starter-path.js  Starter Path steps and the reference checklist
+js/config/starter-path.js  Starter Path steps and the Notebook setup wizard screens
 js/config/helpers.js       Visibility, sanitizing, validation, prompt context, config integrity check
 js/engine/prompt-engine.js Template syntax, validation, and generation (pure functions)
 js/templates/registry.js   Template registry
@@ -38,13 +38,13 @@ js/templates/steps.js      Starter Path main prompts, steps 1-10
 js/templates/helpers.js    Helper prompts shown on every step
 js/templates/library.js    Prompt Library prompts and groups
 js/storage/storage.js      Versioned localStorage store with in-memory fallback
-js/export/prompt-pack.js   Prompt Pack Markdown builder (pure)
 js/export/data-file.js     JSON data file export/import (pure)
 js/ui/dom.js               Small DOM helper (text nodes only, no innerHTML)
 js/ui/browser.js           Clipboard (with file:// fallback), download, file reading
-js/ui/components.js        Page header, empty state, status messages, Prompt Pack button
+js/ui/components.js        Page header, empty state, status messages
 js/ui/prompt-card.js       Prompt card: inputs, copy, save, character count
-js/ui/views/               Starter Path, My Profile (incl. data export/import), My Prompts
+js/ui/views/               Starter Path, Notebook setup wizard, My Profile (incl. data export/import),
+                           My Prompts, Prompt Library
 js/ui/app.js               Navigation, routing, storage notice, announcements
 tests/                     node:test suites
 ```
@@ -62,7 +62,7 @@ The schemas are documented at the top of each config file and of `prompt-engine.
 
 * **Step 0 prompts carry the full profile.** Every other prompt stays short: it refers to "my setup from this Notebook" and repeats a profile value only when it changes the answer (e.g. OS for installing tools).
 * **No technology names in templates.** Framework, language, and IDE come from the profile; Copilot supplies the stack-specific commands. `tests/content.test.js` enforces this, along with the length limits.
-* **Copilot Notebooks facts the content relies on:** instructions are set via More options (…) → Instructions. References can be .docx, .pptx, .xlsx, .pdf, .loop, .page, .txt, .rtf files, OneNote pages, or links to organization content. Public web pages and .md files can't be added, which is why the Prompt Pack is exported as .txt by default.
+* **Copilot Notebooks facts the content relies on:** instructions are set via More options (…) → Instructions. References can be .docx, .pptx, .xlsx, .pdf, .loop, .page, .txt, .rtf files, OneNote pages, or links to organization content. Public web pages and .md files can't be added. The setup wizard (`config.wizards`) follows these menu names.
 
 ### Template syntax
 

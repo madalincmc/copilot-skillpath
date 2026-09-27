@@ -3,56 +3,11 @@ const assert = require('node:assert/strict');
 const { loadCore } = require('./helpers/load');
 
 const SP = loadCore();
-const { buildPromptPack, promptPackFilename, fence, serializeDataFile, parseDataFile, summarizeData, dataFilename } = SP.exports;
+const { serializeDataFile, parseDataFile, summarizeData, dataFilename } = SP.exports;
 
 const profile = SP.config.applyPreset('qa-manual-to-automation-windows');
 
-test('Prompt Pack includes profile, step prompts with headings, and saved prompts', () => {
-  const md = buildPromptPack({
-    profile,
-    date: '2026-10-01',
-    savedPrompts: [{ id: 'a', title: 'My custom prompt', text: 'Use ```code``` here', savedAt: '2026-09-30T10:00:00.000Z' }],
-  });
-
-  assert.match(md, /^# Copilot SkillPath — Prompt Pack\n/);
-  assert.match(md, /Exported on 2026-10-01\./);
-  assert.match(md, /- \*\*Automation framework:\*\* Playwright/);
-  assert.match(md, /- \*\*Available time:\*\* 1 hour per day/);
-  assert.doesNotMatch(md, /\*\*Per:\*\*/);
-
-  assert.match(md, /### Step 4 — Write my first test\n/);
-  assert.match(md, /#### Guide me through this step \(Step 4\)\n\n_When to use:_ Use this when/);
-  assert.match(md, /Using my setup from this Notebook, guide me to write my first automated test against my practice target\./);
-  assert.match(md, /#### Notebook instructions \(Step 0\)/);
-  assert.match(md, /#### I'm stuck \(Step 7\)/);
-  assert.match(md, /\[DESCRIBE WHAT YOU DID AND PASTE THE ERROR OR OUTPUT HERE\]/);
-  assert.match(md, /### Step 10 — Run tests in CI \(optional\)/);
-  assert.match(md, /add the \.txt version of this file to your Notebook/);
-
-  assert.match(md, /## My saved prompts\n\n### My custom prompt\n\n_Saved on 2026-09-30\._\n\n````text\nUse ```code``` here\n````/);
-  assert.doesNotMatch(md, /\n{3,}/);
-  assert.ok(md.endsWith('\n'));
-});
-
-test('Prompt Pack without a profile still lists saved prompts', () => {
-  const md = buildPromptPack({ profile: null, date: '2026-10-01', savedPrompts: [{ id: 'a', title: 'T', text: 'P', savedAt: '2026-10-01T00:00:00Z' }] });
-  assert.doesNotMatch(md, /My learning profile/);
-  assert.match(md, /### T/);
-});
-
-test('Prompt Pack output is deterministic', () => {
-  const options = { profile, date: '2026-10-01', savedPrompts: [] };
-  assert.equal(buildPromptPack(options), buildPromptPack(options));
-});
-
-test('fence is longer than any backtick run in the text', () => {
-  assert.equal(fence('plain'), '```text\nplain\n```');
-  assert.equal(fence('a ```` b'), '`````text\na ```` b\n`````');
-});
-
-test('file names include the date', () => {
-  assert.equal(promptPackFilename('2026-10-01'), 'copilot-skillpath-prompt-pack-2026-10-01.txt');
-  assert.equal(promptPackFilename('2026-10-01', 'md'), 'copilot-skillpath-prompt-pack-2026-10-01.md');
+test('data file name includes the date', () => {
   assert.equal(dataFilename('2026-10-01'), 'copilot-skillpath-data-2026-10-01.json');
 });
 
@@ -79,18 +34,6 @@ test('parseDataFile rejects files that are not ours', () => {
 test('summarizeData describes the contents', () => {
   const state = SP.storage.migrate({ schemaVersion: 1, profile: { domain: 'x' }, progress: { completedSteps: ['a'] }, prompts: [] });
   assert.equal(summarizeData(state), 'a learning profile, 1 completed step, 0 saved prompts');
-});
-
-test('describeProfile uses form labels, custom "Other" text, and derived rows', () => {
-  const rows = SP.config.describeProfile(Object.assign({}, profile, { framework: 'other', frameworkOther: 'TestCafe', language: 'other', languageOther: 'Ruby' }));
-  const byId = Object.fromEntries(rows.map((r) => [r.id, r]));
-  assert.equal(byId.domain.value, 'Automation Testing');
-  assert.equal(byId.framework.value, 'TestCafe');
-  assert.equal(byId.language.value, 'Ruby');
-  assert.equal(byId.frameworkOther, undefined);
-  assert.equal(byId.goal.value, 'Transition from manual to automation');
-  assert.deepEqual(byId.timeAmount, { id: 'timeAmount', label: 'Available time', value: '1 hour per day' });
-  assert.equal(byId.timeUnit, undefined);
 });
 
 test('store.updatePrompt changes text and version and refreshes savedAt', () => {

@@ -105,42 +105,6 @@
     return ctx;
   }
 
-  /**
-   * Human-readable profile rows for summaries: [{ id, label, value }].
-   * Uses form labels (not prompt wording). "Other" options show the user's text, and fields that only
-   * feed another row (e.g. frameworkOther) are left out.
-   */
-  function describeProfile(profile) {
-    const values = sanitizeProfile(profile);
-    const domain = getDomain(values.domain);
-    if (!domain) return [];
-    const fields = getFields(domain.id);
-    const feeders = new Set();
-    for (const field of fields) {
-      for (const option of field.options || []) if (option.labelFromField) feeders.add(option.labelFromField);
-    }
-    const ctx = buildPromptContext(values);
-
-    const rows = [{ id: 'domain', label: 'Learning domain', value: domain.label }];
-    for (const field of fields) {
-      const raw = values[field.id];
-      if (raw == null || raw === '' || feeders.has(field.id)) continue;
-      const summary = field.summary || {};
-      if (summary.hidden) continue;
-      let value = String(raw);
-      if (summary.derived) {
-        if (!ctx[summary.derived]) continue;
-        value = ctx[summary.derived].label;
-      } else if (field.options) {
-        const option = field.options.find((o) => o.value === raw);
-        const custom = option.labelFromField ? String(values[option.labelFromField] || '').trim() : '';
-        value = custom || option.label;
-      }
-      rows.push({ id: field.id, label: field.label, value });
-    }
-    return rows;
-  }
-
   function listPresets(domainId) {
     return config.presets.filter((p) => !domainId || p.domain === domainId);
   }
@@ -158,12 +122,8 @@
     return config.starterPaths.find((p) => p.id === domain.starterPathId) || null;
   }
 
-  function getChecklist(checklistId) {
-    return config.checklists.find((c) => c.id === checklistId) || null;
-  }
-
-  function getGuide(guideId) {
-    return (config.guides || []).find((g) => g.id === guideId) || null;
+  function getWizard(wizardId) {
+    return (config.wizards || []).find((w) => w.id === wizardId) || null;
   }
 
   function getHelperTemplateIds(step) {
@@ -245,30 +205,27 @@
         if (step.number !== index) errors.push(where + 'numbers must be sequential from 0');
         if (!step.title || !step.summary || !step.definitionOfDone) errors.push(where + 'title, summary and definitionOfDone are required');
         if (!step.mainTemplateId && !step.setupTemplateIds) errors.push(where + 'needs mainTemplateId or setupTemplateIds');
-        if (step.checklistId && !getChecklist(step.checklistId)) errors.push(where + 'unknown checklist "' + step.checklistId + '"');
-        if (step.guideId && !getGuide(step.guideId)) errors.push(where + 'unknown guide "' + step.guideId + '"');
+        if (step.wizardId && !getWizard(step.wizardId)) errors.push(where + 'unknown wizard "' + step.wizardId + '"');
         [step.mainTemplateId].concat(step.setupTemplateIds || [], getHelperTemplateIds(step)).filter(Boolean).forEach((id) => templateIds.add(id));
       });
     }
 
-    for (const checklist of config.checklists) {
-      for (const item of checklist.items) {
-        try {
-          SP.engine.parse(item.text);
-        } catch (e) {
-          errors.push('checklist ' + checklist.id + '.' + item.id + ': ' + e.message);
+    for (const wizard of config.wizards || []) {
+      const screenIds = new Set();
+      for (const screen of wizard.screens) {
+        const where = 'wizard ' + wizard.id + ' screen ' + screen.id + ': ';
+        if (screenIds.has(screen.id)) errors.push(where + 'duplicate screen id');
+        screenIds.add(screen.id);
+        if (!screen.title || !Array.isArray(screen.text) || !screen.doneLabel) errors.push(where + 'title, text and doneLabel are required');
+        if (screen.templateId) templateIds.add(screen.templateId);
+        for (const text of [].concat(screen.text || [], screen.note || [])) {
+          try {
+            SP.engine.parse(text);
+          } catch (e) {
+            errors.push(where + e.message);
+          }
         }
       }
-    }
-
-    for (const guide of config.guides || []) {
-      guide.steps.forEach((text, i) => {
-        try {
-          SP.engine.parse(text);
-        } catch (e) {
-          errors.push('guide ' + guide.id + ' step ' + (i + 1) + ': ' + e.message);
-        }
-      });
     }
 
     if (opts.checkTemplates) {
@@ -291,12 +248,10 @@
     sanitizeProfile,
     validateProfile,
     buildPromptContext,
-    describeProfile,
     listPresets,
     applyPreset,
     getStarterPath,
-    getChecklist,
-    getGuide,
+    getWizard,
     getHelperTemplateIds,
     validateConfig,
   });

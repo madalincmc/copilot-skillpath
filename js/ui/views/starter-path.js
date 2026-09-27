@@ -1,12 +1,13 @@
 /*
  * Starter Path: the home screen. Ordered step cards with progress, a highlighted next step,
  * the step's prompts, and Mark as done. Any step can be opened; order is recommended, not enforced.
+ * Step 0 is done through the Notebook setup wizard (#/setup) instead of prompts on the card.
  */
 (function (SP) {
   'use strict';
 
   const { h } = SP.dom;
-  const { pageHeader, promptCard, promptPackButton } = SP.ui;
+  const { pageHeader, promptCard } = SP.ui;
   const config = SP.config;
   const DEFAULT_DOMAIN = 'automation-testing';
 
@@ -16,45 +17,28 @@
     'helper.review': 'Review my work',
     'helper.quiz': 'Check my understanding',
   };
-  const SETUP_TITLES = {
-    'setup.notebook-instructions': 'Notebook instructions',
-    'setup.initialize-workspace': 'Initialize my learning workspace',
-  };
-
   // Which steps are expanded. Kept across re-renders for the whole session.
   const openSteps = new Set();
   let openedNextOnce = false;
+  let pendingFocusId = null;
+
+  /** Opens a step (and optionally focuses it) the next time the Starter Path renders. */
+  function openStep(stepId, focus) {
+    openSteps.add(stepId);
+    openedNextOnce = true;
+    if (focus) pendingFocusId = stepId;
+  }
+
+  function focusStep(stepId) {
+    const el = document.getElementById('step-' + stepId);
+    if (!el) return;
+    el.open = true;
+    el.querySelector('summary').focus();
+    el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
 
   function findNextStep(path, done) {
     return path.steps.find((s) => !s.optional && !done.has(s.id)) || path.steps.find((s) => !done.has(s.id)) || null;
-  }
-
-  function checklist(step, context, store) {
-    const list = config.getChecklist(step.checklistId);
-    const ticks = store.getChecklist();
-    return h('section', { class: 'checklist' },
-      h('h3', null, list.title),
-      h('p', { class: 'hint' }, 'Add these to your Notebook with Add references. Tick them off as you go.'),
-      h('ul', null, list.items.map((item) => {
-        const text = SP.engine.renderText(item.text, context);
-        if (!text) return null;
-        const id = 'check-' + step.id + '-' + item.id;
-        return h('li', null,
-          h('input', {
-            type: 'checkbox',
-            id,
-            checked: ticks[item.id] === true,
-            onChange: (e) => store.setChecklistItem(item.id, e.target.checked),
-          }),
-          h('label', { for: id }, text));
-      })));
-  }
-
-  function guide(guideId, context) {
-    const g = config.getGuide(guideId);
-    return h('section', { class: 'guide' },
-      h('h3', null, g.title),
-      h('ol', null, g.steps.map((text) => h('li', null, SP.engine.renderText(text, context)))));
   }
 
   function stepPrompts(step, context, app) {
@@ -71,13 +55,6 @@
     };
     const blocks = [];
 
-    // Step 0 follows its guide's order: instructions, then references, then the initialize prompt.
-    const setupIds = step.setupTemplateIds || [];
-    const setupCard = (id) => card(id, SETUP_TITLES[id] || 'Setup prompt', (t) => t.title);
-    if (step.guideId) blocks.push(guide(step.guideId, context));
-    if (setupIds.length) blocks.push(setupCard(setupIds[0]));
-    if (step.checklistId) blocks.push(checklist(step, context, store));
-    setupIds.slice(1).forEach((id) => blocks.push(setupCard(id)));
     if (step.mainTemplateId) {
       blocks.push(card(step.mainTemplateId, 'Guide me through this step', () => 'Step ' + step.number + ' · ' + step.title));
     }
@@ -90,6 +67,14 @@
           helperIds.map((id) => card(id, HELPER_TITLES[id] || 'Helper prompt', (t) => t.title + ' · Step ' + step.number + ' · ' + step.title, 4)))));
     }
     return blocks;
+  }
+
+  function wizardBlock(isDone) {
+    return h('div', { class: 'callout' },
+      h('p', null, isDone
+        ? 'Your Notebook is set up. You can go through the setup again at any time, for example to copy the instructions after changing your profile.'
+        : 'A short guided setup: create the Notebook, paste your instructions, and let Copilot create your learning plan. About five minutes.'),
+      h('a', { class: isDone ? 'button button-secondary' : 'button', href: '#/setup' }, isDone ? 'Go through the setup again' : 'Start Notebook setup'));
   }
 
   function stepCard(step, state, app) {
@@ -108,12 +93,13 @@
       h('div', { class: 'step-body' },
         h('p', null, step.summary),
         h('p', { class: 'done-when' }, h('strong', null, 'Done when: '), step.definitionOfDone),
-        context
-          ? stepPrompts(step, context, app)
-          : h('div', { class: 'callout' },
+        !context
+          ? h('div', { class: 'callout' },
             h('p', null, 'Create your learning profile to get prompts personalized for this step.'),
-            h('a', { class: 'button', href: '#/profile' }, 'Create my learning profile')),
-        h('div', { class: 'step-actions' },
+            h('a', { class: 'button', href: '#/profile' }, 'Create my learning profile'))
+          : step.wizardId ? wizardBlock(isDone) : stepPrompts(step, context, app),
+        // The setup wizard marks its step as done when finished, so it only offers undo here.
+        step.wizardId && !isDone ? null : h('div', { class: 'step-actions' },
           h('button', {
             type: 'button',
             class: isDone ? 'button button-secondary' : 'button button-success',
@@ -143,12 +129,7 @@
     }
     app.rerender();
     app.announce(done ? 'Step ' + step.number + ' marked as done.' + (next ? ' Next: ' + next.title + '.' : ' You finished the Starter Path.') : 'Step ' + step.number + ' marked as not done.');
-
-    const el = document.getElementById('step-' + focusId);
-    if (el) {
-      el.querySelector('summary').focus();
-      el.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    }
+    focusStep(focusId);
   }
 
   function starterPathView(app) {
@@ -164,30 +145,28 @@
       openedNextOnce = true;
     }
 
+    if (pendingFocusId) {
+      const id = pendingFocusId;
+      pendingFocusId = null;
+      setTimeout(() => focusStep(id), 0);
+    }
+
     const required = path.steps.filter((s) => !s.optional);
     const doneCount = required.filter((s) => done.has(s.id)).length;
 
     const nextBanner = next
       ? h('div', { class: 'next-step' },
         h('p', null, h('span', { class: 'next-label' }, 'Next step'), h('strong', null, 'Step ' + next.number + ': ' + next.title)),
-        h('button', {
-          type: 'button',
-          class: 'button',
-          onClick: () => {
-            const el = document.getElementById('step-' + next.id);
-            el.open = true;
-            el.querySelector('summary').focus();
-            el.scrollIntoView({ block: 'start', behavior: 'smooth' });
-          },
-        }, 'Go to step'))
+        next.wizardId
+          ? h('a', { class: 'button', href: '#/setup' }, 'Start Notebook setup')
+          : h('button', { type: 'button', class: 'button', onClick: () => focusStep(next.id) }, 'Go to step'))
       : h('div', { class: 'next-step is-complete' },
         h('p', null, h('strong', null, 'You finished the Starter Path.'), ' Keep going with the Prompt Library, in the same Notebook.'),
         h('a', { class: 'button', href: '#/library' }, 'Open the Prompt Library'));
 
     return h('section', null,
       pageHeader(path.title,
-        'Set up your Copilot Notebook, then follow the steps. Each step gives you a prompt to paste into the same Notebook.',
-        profile ? promptPackButton(app) : null),
+        'Set up your Copilot Notebook, then follow the steps. Each step gives you a prompt to paste into the same Notebook.'),
       profile ? null : h('div', { class: 'callout' },
         h('p', null, 'Start by creating your learning profile, so every prompt matches your setup.'),
         h('a', { class: 'button', href: '#/profile' }, 'Create my learning profile')),
@@ -199,4 +178,5 @@
   }
 
   SP.views = Object.assign(SP.views || {}, { path: starterPathView });
+  SP.ui.starterPath = { openStep, findNextStep };
 })((globalThis.SkillPath = globalThis.SkillPath || {}));
