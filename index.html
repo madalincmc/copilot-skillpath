@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Set up a Copilot Notebook and get personalized prompts for each step of your learning journey.">
+  <title>Copilot SkillPath</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a class="brand" href="#/path">Copilot SkillPath</a>
+      <nav id="nav" class="app-nav" aria-label="Main"></nav>
+    </div>
+  </header>
+
+  <div id="storage-notice" class="storage-notice" role="status" hidden></div>
+
+  <main id="main" class="app-main" tabindex="-1">
+    <noscript>Copilot SkillPath needs JavaScript to run.</noscript>
+  </main>
+
+  <!--
+    Classic scripts on purpose: ES modules and fetching local files are blocked when the page is opened
+    from file://, which is how this app is distributed. Order matters.
+  -->
+  <script src="js/config/domains.js"></script>
+  <script src="js/config/presets.js"></script>
+  <script src="js/config/starter-path.js"></script>
+  <script src="js/engine/prompt-engine.js"></script>
+  <script src="js/config/helpers.js"></script>
+  <script src="js/templates/registry.js"></script>
+  <script src="js/storage/storage.js"></script>
+  <script src="js/ui/dom.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "copilot-skillpath",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first entry point for learning with Microsoft Copilot: set up a Copilot Notebook and get personalized prompts for each step.",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
