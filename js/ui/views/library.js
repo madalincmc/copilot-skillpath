@@ -24,7 +24,7 @@
     const templates = SP.templates.list({ category: 'library', domain: profile.domain });
 
     return h('section', null, header,
-      h('nav', { class: 'library-nav', 'aria-label': 'Prompt Library sections' },
+      h('nav', { class: 'chip-nav', 'aria-label': 'Prompt Library sections' },
         h('ul', null, config.libraryGroups
           .filter((g) => templates.some((t) => t.group === g.id))
           .map((g) => h('li', null, h('a', {

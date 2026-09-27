@@ -53,6 +53,8 @@ test('the essentials file is the same for every stack and names no technology', 
     .filter((o) => o.value !== 'other')
     .map((o) => o.label);
   for (const name of names) assert.ok(!texts[0].includes(name), 'mentions ' + name);
-  assert.match(texts[0], /Key concepts/);
-  assert.match(texts[0], /Good practices/);
+  for (const chapter of SP.content.getTheory('automation-testing').chapters) {
+    assert.ok(texts[0].includes(chapter.title + '\n' + '-'.repeat(chapter.title.length)), chapter.id);
+    for (const point of chapter.points) assert.ok(texts[0].includes('- ' + point), chapter.id);
+  }
 });

@@ -14,6 +14,17 @@ function stepFor(template) {
   return path.steps.find((s) => s.mainTemplateId === template.id || (s.setupTemplateIds || []).includes(template.id)) || path.steps[4];
 }
 
+/** Adds the variables that the Theory and Quizzes views add for their templates. */
+function contextFor(template, context) {
+  if (template.category === 'quiz') return config.buildQuizContext(context, {});
+  if (template.category === 'theory') {
+    const chapter = SP.content.getTheory('automation-testing').chapters[0];
+    const label = SP.engine.renderText(chapter.deeperTopic, context);
+    return Object.assign({}, context, { theoryTopic: { value: chapter.id, label } });
+  }
+  return context;
+}
+
 test('every template referenced by the config is registered', () => {
   assert.deepEqual(config.validateConfig({ checkTemplates: true }), []);
 });
@@ -22,7 +33,7 @@ test('every template generates for every test profile with nothing missing', () 
   for (const [name, profile] of profiles) {
     const context = config.buildPromptContext(profile);
     for (const template of SP.templates.list({ domain: 'automation-testing' })) {
-      const result = SP.engine.generate(template, { context, step: stepFor(template) });
+      const result = SP.engine.generate(template, { context: contextFor(template, context), step: stepFor(template) });
       assert.deepEqual(result.missing, [], name + ' / ' + template.id);
       assert.doesNotMatch(result.text, /\[MISSING|undefined|null|\{\{|\}\}/, name + ' / ' + template.id);
     }
@@ -32,11 +43,11 @@ test('every template generates for every test profile with nothing missing', () 
 test('step, helper, and library prompts stay short; setup prompts carry the context', () => {
   // Step prompts end with the shared step rules (one step at a time, 3 questions, back to the app),
   // so they get more room than helpers. Setup prompts are copied once.
-  const limits = { setup: 1900, step: 600, helper: 350, library: 350 };
+  const limits = { setup: 1900, step: 600, helper: 350, library: 350, theory: 350, quiz: 700 };
   for (const [, profile] of profiles) {
     const context = config.buildPromptContext(profile);
     for (const template of SP.templates.list()) {
-      const { charCount } = SP.engine.generate(template, { context, step: stepFor(template) });
+      const { charCount } = SP.engine.generate(template, { context: contextFor(template, context), step: stepFor(template) });
       assert.ok(charCount <= limits[template.category], template.id + ' is ' + charCount + ' characters (limit ' + limits[template.category] + ')');
     }
   }

@@ -19,6 +19,8 @@
 
   const routes = [
     { id: 'path', label: 'Starter Path' },
+    { id: 'theory', label: 'Theory' },
+    { id: 'quiz', label: 'Quizzes' },
     { id: 'library', label: 'Prompt Library' },
     { id: 'profile', label: 'My Profile' },
     // Not in the menu; highlights its parent instead.

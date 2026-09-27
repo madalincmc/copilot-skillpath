@@ -228,6 +228,42 @@
       }
     }
 
+    const quizTopicIds = new Set();
+    if (config.quiz) {
+      for (const key of ['topics', 'counts', 'formats', 'levels']) {
+        for (const option of config.quiz[key]) {
+          if (key === 'topics') quizTopicIds.add(option.value);
+          for (const text of [option.label, option.promptLabel].filter(Boolean)) {
+            try {
+              SP.engine.parse(text);
+            } catch (e) {
+              errors.push('quiz ' + key + '.' + option.value + ': ' + e.message);
+            }
+          }
+        }
+      }
+      templateIds.add('quiz.run');
+    }
+
+    for (const domain of config.domains) {
+      const theory = !domain.comingSoon && SP.content && SP.content.getTheory ? SP.content.getTheory(domain.id) : null;
+      if (!theory) continue;
+      const chapterIds = new Set();
+      for (const chapter of theory.chapters) {
+        const where = 'theory ' + domain.id + '.' + chapter.id + ': ';
+        if (chapterIds.has(chapter.id)) errors.push(where + 'duplicate chapter id');
+        chapterIds.add(chapter.id);
+        if (!chapter.title || !chapter.summary.length || !chapter.points.length) errors.push(where + 'title, summary and points are required');
+        if (!quizTopicIds.has(chapter.quizTopicId)) errors.push(where + 'unknown quiz topic "' + chapter.quizTopicId + '"');
+        try {
+          SP.engine.parse(chapter.deeperTopic);
+        } catch (e) {
+          errors.push(where + e.message);
+        }
+      }
+      templateIds.add('theory.deeper');
+    }
+
     if (opts.checkTemplates) {
       for (const id of templateIds) {
         if (!SP.templates || !SP.templates.get(id)) errors.push('template "' + id + '" is referenced but not registered');
