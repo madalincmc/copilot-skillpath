@@ -239,7 +239,35 @@
         h('button', { type: 'button', class: 'button button-secondary', onClick: () => fileInput.click() }, 'Import data (.json)'),
         fileInput,
         status),
-      importPanel);
+      importPanel,
+      resetControl(app));
+  }
+
+  /**
+   * Deletes everything (profile, progress, saved prompts) after a second click, then reloads the page
+   * so in-memory state such as the wizard position and open steps starts fresh too.
+   */
+  function resetControl(app) {
+    const button = h('button', { type: 'button', class: 'button button-secondary' }, 'Delete all my data and start over');
+    let timer = null;
+    button.addEventListener('click', () => {
+      if (!button.classList.contains('is-confirming')) {
+        button.classList.add('is-confirming', 'button-danger');
+        button.textContent = 'Click again to delete everything';
+        timer = setTimeout(() => {
+          button.classList.remove('is-confirming', 'button-danger');
+          button.textContent = 'Delete all my data and start over';
+        }, 5000);
+        return;
+      }
+      clearTimeout(timer);
+      app.store.reset();
+      location.hash = '#/profile';
+      location.reload();
+    });
+    return h('div', { class: 'reset-control' },
+      h('p', { class: 'hint' }, 'Removes your profile, progress, and saved prompts from this browser. Export your data first if you want to keep it.'),
+      button);
   }
 
   SP.views = Object.assign(SP.views || {}, { profile: profileView });

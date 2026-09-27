@@ -472,6 +472,16 @@ textarea.input {
   margin-top: 8px;
 }
 
+.reset-control {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.reset-control .hint {
+  margin-bottom: 8px;
+}
+
 /* Starter Path */
 .progress {
   margin-bottom: 16px;
