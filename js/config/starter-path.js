@@ -44,8 +44,16 @@
           mainTemplateId: 'step.environment',
         },
         {
-          id: 'create-project',
+          id: 'language-essentials',
           number: 2,
+          title: 'Learn the language essentials',
+          summary: 'Learn the minimum of your programming language and the terminal you need to read and write automated tests.',
+          definitionOfDone: 'You can write and run a small program with variables, functions, and collections, use the terminal to move between folders and run commands, and explain a simple test line by line.',
+          mainTemplateId: 'step.language-essentials',
+        },
+        {
+          id: 'create-project',
+          number: 3,
           title: 'Create the project',
           summary: 'Initialize a new test automation project and install the framework dependencies.',
           definitionOfDone: 'The project is created and the framework\'s sample or empty test run completes.',
@@ -53,7 +61,7 @@
         },
         {
           id: 'project-structure',
-          number: 3,
+          number: 4,
           title: 'Understand the project structure',
           summary: 'Learn what each file and folder in the new project is for.',
           definitionOfDone: 'You can explain what each file and folder does and where new tests should go.',
@@ -61,7 +69,7 @@
         },
         {
           id: 'first-test',
-          number: 4,
+          number: 5,
           title: 'Write my first test',
           summary: 'Write a simple automated test against your practice target.',
           definitionOfDone: 'One test you wrote yourself runs and passes.',
@@ -69,7 +77,7 @@
         },
         {
           id: 'selectors',
-          number: 5,
+          number: 6,
           title: 'Write my first selectors',
           summary: 'Find elements reliably and learn which selectors are stable and which are fragile.',
           definitionOfDone: 'You can choose a stable selector for an element and explain why.',
@@ -77,7 +85,7 @@
         },
         {
           id: 'assertions-waits',
-          number: 6,
+          number: 7,
           title: 'Assertions and waits',
           summary: 'Verify real outcomes and handle timing without hard-coded sleeps.',
           definitionOfDone: 'Your test checks real results and has no fixed sleeps.',
@@ -85,7 +93,7 @@
         },
         {
           id: 'page-object',
-          number: 7,
+          number: 8,
           title: 'Create my first Page Object',
           summary: 'Refactor your test to use the Page Object Model.',
           definitionOfDone: 'Your test uses a Page Object, and the selectors live in the Page Object, not in the test.',
@@ -93,7 +101,7 @@
         },
         {
           id: 'run-locally',
-          number: 8,
+          number: 9,
           title: 'Run tests locally',
           summary: 'Run tests headed and headless, debug a failing test, and read the report.',
           definitionOfDone: 'You can run one test or all tests, debug a failure, and open the test report.',
@@ -101,7 +109,7 @@
         },
         {
           id: 'push-github',
-          number: 9,
+          number: 10,
           title: 'Push to GitHub',
           summary: 'Put your project under version control and push it to a GitHub repository.',
           definitionOfDone: 'A .gitignore is set up, the repository exists on GitHub, and your first commit is pushed.',
@@ -109,7 +117,7 @@
         },
         {
           id: 'ci',
-          number: 10,
+          number: 11,
           title: 'Run tests in CI',
           summary: 'Run your tests automatically on every push with GitHub Actions.',
           definitionOfDone: 'A GitHub Actions workflow runs your tests on push, and you can read its results.',

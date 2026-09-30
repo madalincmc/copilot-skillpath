@@ -18,7 +18,7 @@ This round validates Copilot SkillPath, a local HTML app that sets up a Copilot 
 | F1 | Profile from a preset | Start from a preset → check values → Save and start | Profile saved, user sent to Notebook setup |  |
 | F2 | Adjusted preset and validation | Change OS, target (own app) and duration (custom) → leave new fields empty → Save | Extra fields appear only when needed; errors name the fields |  |
 | F3 | Notebook setup wizard | Download the 3 files → create Notebook → paste instructions → paste plan prompt → Finish | Files hold the profile; menu names match Copilot; progress saved |  |
-| F4 | Starter Path, steps 1–10 | Per step: copy prompt → paste in Notebook → Mark as done → Next step | Prompts personalized; progress tracked; step 10 optional; completion message at the end |  |
+| F4 | Starter Path, steps 1–11 | Per step: copy prompt → paste in Notebook → Mark as done → Next step | Prompts personalized; progress tracked; step 11 optional; completion message at the end |  |
 | F5 | Need help with this step? | Use I'm stuck, Explain this, Review my work, Check my understanding, with and without inputs | Step title and inputs appear; empty inputs stay as \[PLACEHOLDER\] |  |
 | F6 | Theory, Quizzes, Prompt Library | Open each chapter, build quizzes with different options, copy one prompt per library group | Every prompt copies and matches the selection |  |
 | F7 | Export, delete, import | Export data → Delete all my data → import the file; then import an invalid or edited .json | Data restored identically; invalid files rejected with a clear message |  |
@@ -37,7 +37,7 @@ Each response is scored 1–5 on:
 - Ends a step with 3 questions and sends the learner back to the app.
 - Concise, at the learner's level.
 
-Specific checks: the learning plan covers all 10 steps with time estimates and a weekly schedule; I'm stuck asks diagnostic questions before giving a fix; Review my work lists improvements without rewriting the code; quizzes respect count, format and level, and the answers marked correct really are correct.
+Specific checks: the learning plan covers all 11 steps with time estimates and a weekly schedule; I'm stuck asks diagnostic questions before giving a fix; Review my work lists improvements without rewriting the code; quizzes respect count, format and level, and the answers marked correct really are correct.
 
 ## 3. Feedback
 
@@ -45,16 +45,15 @@ Specific checks: the learning plan covers all 10 steps with time estimates and a
 | --- | --- |
 | Functionality | Where did the flow stall? What was missing or unnecessary? |
 | Prompts | Which prompt gave the weakest answer, and what wording fixed it? Which rules did Copilot ignore? |
-| Experienced automation engineer | Is the material accurate and current? What falls out of the flow (e.g. language basics, test independence, test data, flaky tests)? Where should the path insist more? Would the final project pass a code review? |
+| Experienced automation engineer | Is the material accurate and current? What falls out of the flow (e.g. test independence, test data, flaky tests)? Where should the path insist more? Would the final project pass a code review? |
 | Manual tester | Did setup work without outside help? Were explanations clear? Were the tests self-written or copied? Could a simple test for a real app be written afterwards? |
 
 Starting ideas, to confirm or reject:
 
 - Show each step's “Done when” as a checklist, and include it in the step prompt.
 - A “Where I left off” prompt for returning to the Notebook after a break.
-- Pin the practice site chosen in step 4, so Copilot doesn't switch sites.
+- Pin the practice site chosen in step 5, so Copilot doesn't switch sites.
 - Save quiz scores in the app.
-- Add language basics (async/await for JavaScript; classes, Maven and JUnit/TestNG for Java) before the first test.
 
 ## Reporting
 

@@ -91,9 +91,9 @@ test('buildPromptContext resolves labels and derived variables', () => {
   assert.equal(ctx2.availableTime.label, '45 minutes per day');
 });
 
-test('Automation Testing Starter Path has steps 0-10 with step 10 optional', () => {
+test('Automation Testing Starter Path has steps 0-11 with step 11 optional', () => {
   const path = config.getStarterPath('automation-testing');
-  assert.deepEqual(path.steps.map((s) => s.number), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.deepEqual(path.steps.map((s) => s.number), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   assert.equal(path.steps[0].id, 'notebook-setup');
   assert.deepEqual(path.steps.filter((s) => s.optional).map((s) => s.id), ['ci']);
   assert.ok(config.getWizard(path.steps[0].wizardId));

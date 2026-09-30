@@ -30,7 +30,7 @@ The app walks you through four short screens:
 
 ## 4. Follow the steps
 
-Steps 1 to 9 take you from an empty machine to tests running and pushed to GitHub.
+Steps 1 to 10 take you from an empty machine to tests running and pushed to GitHub.
 
 For each step: copy the prompt from the app, paste it into **the same Notebook**, and follow Copilot one step at a time. If you get stuck, use **Need help with this step?** for *I'm stuck*, *Explain this*, *Review my work*, or *Check my understanding*.
 

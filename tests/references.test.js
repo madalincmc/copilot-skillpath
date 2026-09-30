@@ -42,7 +42,7 @@ test('the plan file lists every Starter Path step with its outcome', () => {
     assert.ok(plan.includes('Step ' + step.number + ': ' + step.title), step.id);
     assert.ok(plan.includes('Done when: ' + step.definitionOfDone), step.id);
   }
-  assert.match(plan, /Step 10: Run tests in CI \(optional\)/);
+  assert.match(plan, /Step 11: Run tests in CI \(optional\)/);
 });
 
 test('the essentials file is the same for every stack and names no technology', () => {

@@ -11,7 +11,7 @@
 
   register({
     id: 'setup.notebook-instructions',
-    version: 4,
+    version: 5,
     category: 'setup',
     title: 'Notebook instructions',
     description: 'Paste this once into your Notebook\'s Instructions (More options (…) → Instructions). It tells Copilot who you are and how to teach you.',
@@ -33,10 +33,11 @@
     ].join('\n'),
     interaction: [
       'How to teach me:',
-      '- Go one step at a time. Explain briefly why each step matters, then wait for me to confirm or paste the result before continuing.',
+      '- Teach one concept at a time: what it is, why it matters in tests, an example, common mistakes, and similar options.',
+      '- After each concept, give me 1-2 small exercises and a check question; wait for my answer and give feedback.',
       '- Give exact commands, file names, and menu paths for my operating system and IDE.',
       '- Don\'t give me complete solutions upfront. Give hints first; show the full solution only when I ask.',
-      '- Match explanations to my experience and skip advanced detail I don\'t need yet.',
+      '- Match explanations to my experience, and explain every new term the first time it appears.',
       '{{#if experienceLevel == "beginner"}}',
       '- Assume I have not used {{framework}} before.',
       '{{/if}}',
@@ -49,9 +50,9 @@
       '- Don\'t suggest IDE extensions or plugins for now; use what my IDE has built in.',
       '- When we finish a step, ask me 3 short questions about it, one at a time. Wait for each answer and give feedback before asking the next.',
       '- Then remind me to mark the step as done in the Copilot SkillPath app and paste the next step\'s prompt from there. Don\'t start the next step on your own.',
-      '- Use this Notebook\'s references first. For my tools, follow the officially recommended approach, and tell me when something depends on the version I use.',
+      '- Use this Notebook\'s references first, follow the official docs for my tools, and say when something depends on the version.',
       '- Connect new topics to what we already covered in this Notebook.',
-      '- Keep answers concise.',
+      '- Keep each message to one concept, explained thoroughly.',
     ].join('\n'),
   });
 

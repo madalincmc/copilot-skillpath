@@ -95,7 +95,7 @@ test('Notebook instructions adapt to the profile', () => {
 test('the initialize prompt lists the Starter Path steps from the config', () => {
   const text = SP.engine.generate(SP.templates.get('setup.initialize-workspace'), {}).text;
   for (const step of path.steps.filter((s) => s.number > 0)) assert.ok(text.includes(step.number + '. ' + step.title), step.title);
-  assert.match(text, /10\. Run tests in CI \(optional\)/);
+  assert.match(text, /11\. Run tests in CI \(optional\)/);
 });
 
 test('Git basics are added to the GitHub step only for Git beginners', () => {
