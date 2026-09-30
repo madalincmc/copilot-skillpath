@@ -24,6 +24,10 @@ npm run build
 
 Writes `dist/copilot-skillpath.html`: one self-contained file with every stylesheet and script inlined. Share that file (e.g. on Teams); it opens with a double-click, offline. `docs/how-to-start.md` is a short guide to send with it.
 
+### Test plan
+
+[`docs/test-plan.md`](docs/test-plan.md) is the plan for the tester team: functional flows, how to evaluate Copilot responses to the prompts, and the feedback we ask for.
+
 Every push to `main` also publishes the same file to GitHub Pages at <https://madalincmc.github.io/copilot-skillpath/> (workflow: `.github/workflows/pages.yml`, which runs the tests first). The Pages site is public even though the repository is private.
 
 ### Constraints to keep
