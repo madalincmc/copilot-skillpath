@@ -50,6 +50,7 @@
     }
     const state = SP.storage.migrate(data);
     state.profile = cleanImportedProfile(state.profile);
+    state.notebookProfile = cleanImportedProfile(state.notebookProfile);
     return state;
   }
 

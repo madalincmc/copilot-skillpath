@@ -96,6 +96,22 @@
     return { valid: Object.keys(errors).length === 0, errors };
   }
 
+  /**
+   * Compares the profile the Notebook was set up with to the current one. Returns null when they
+   * match (or the Notebook profile is unknown), 'stack' when the domain or a technology field
+   * changed, and 'details' for any other change.
+   */
+  function compareNotebookProfile(notebookProfile, profile) {
+    if (!notebookProfile || !profile) return null;
+    const before = sanitizeProfile(notebookProfile);
+    const after = sanitizeProfile(profile);
+    if (before.domain !== after.domain) return 'stack';
+    const fields = getFields(after.domain);
+    const differs = (field) => (before[field.id] || '') !== (after[field.id] || '');
+    if (fields.some((f) => f.group === 'technology' && differs(f))) return 'stack';
+    return fields.some(differs) ? 'details' : null;
+  }
+
   /** Builds the prompt-engine context for a profile, including the domain and derived variables. */
   function buildPromptContext(profile) {
     const values = sanitizeProfile(profile);
@@ -283,6 +299,7 @@
     getDefaults,
     sanitizeProfile,
     validateProfile,
+    compareNotebookProfile,
     buildPromptContext,
     listPresets,
     applyPreset,

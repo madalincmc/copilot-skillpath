@@ -150,15 +150,32 @@
       showErrorSummary();
       if (!result.valid) return;
 
-      const isFirstProfile = !store.getProfile();
+      const previous = store.getProfile();
+      // Notebooks set up before the app remembered their profile: the one being replaced is it.
+      const setupStep = config.getStarterPath(previous ? previous.domain : draft.domain).steps.find((s) => s.wizardId);
+      if (previous && !store.getNotebookProfile() && store.isStepDone(setupStep.id)) store.setNotebookProfile(previous);
+
       store.saveProfile(config.sanitizeProfile(draft));
-      if (isFirstProfile) {
+      if (!previous) {
         app.announce('Profile saved. Next: set up your Copilot Notebook.');
         location.hash = '#/setup';
+        return;
+      }
+      renderNotebookBanner();
+      if (bannerSlot.firstChild) {
+        flash(formStatus, 'Profile saved. Your Notebook still uses your old details; see below.');
       } else {
         flash(formStatus, 'Profile saved. Your prompts now use these details.');
       }
     }
+
+    const bannerSlot = h('div', { class: 'notebook-banner-slot' });
+    function renderNotebookBanner() {
+      clear(bannerSlot);
+      const banner = SP.ui.notebookBanner(app);
+      if (banner) bannerSlot.appendChild(banner);
+    }
+    renderNotebookBanner();
 
     function applyPreset(presetId, label) {
       draft = config.applyPreset(presetId);
@@ -187,7 +204,8 @@
         formBody,
         h('div', { class: 'form-actions' },
           h('button', { type: 'submit', class: 'button' }, saved ? 'Save changes' : 'Save and start'),
-          formStatus)),
+          formStatus),
+        bannerSlot),
       dataSection(app));
   }
 

@@ -89,7 +89,7 @@ test('stored data is normalized: malformed entries and old keys dropped, missing
     prompts: [{ id: 'x', title: 'T', text: 'P', savedAt: 's' }],
   });
   const store = createStore({ backend: new MemoryBackend({ [STORAGE_KEY]: raw }) });
-  assert.deepEqual(store.getState(), { schemaVersion: 1, profile: null, progress: { completedSteps: ['a'] } });
+  assert.deepEqual(store.getState(), { schemaVersion: 1, profile: null, notebookProfile: null, progress: { completedSteps: ['a'] } });
 });
 
 test('step progress toggles without duplicates', () => {
@@ -136,4 +136,23 @@ test('reset clears everything and notifies subscribers', () => {
   store.setStepDone('b', true);
   assert.equal(calls, 1);
   assert.deepEqual(store.getState().progress.completedSteps, ['b']);
+});
+
+test('the Notebook profile is stored, persisted, and cleared with the rest; clearProgress keeps the profile', () => {
+  const backend = new MemoryBackend();
+  const a = createStore({ backend });
+  const profile = SP.config.applyPreset('starter-playwright-javascript');
+  a.saveProfile(profile);
+  a.setNotebookProfile(profile);
+  a.setStepDone('environment', true);
+  assert.deepEqual(createStore({ backend }).getNotebookProfile(), profile);
+
+  a.clearProgress();
+  assert.deepEqual(a.getCompletedSteps(), []);
+  assert.deepEqual(a.getProfile(), profile);
+  assert.deepEqual(a.getNotebookProfile(), profile);
+
+  assert.throws(() => a.setNotebookProfile('x'), TypeError);
+  a.reset();
+  assert.equal(a.getNotebookProfile(), null);
 });

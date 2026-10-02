@@ -81,3 +81,15 @@ test('profileRows shows the imported profile and flags typed text', () => {
   assert.equal(byLabel['Operating system'].value, 'Windows');
   assert.deepEqual(SP.exports.profileRows(null), []);
 });
+
+test('import cleans the Notebook profile like the profile', () => {
+  const state = parseDataFile(JSON.stringify({
+    schemaVersion: 1,
+    profile,
+    notebookProfile: Object.assign({}, profile, { extra: 'dropped', os: { nested: true } }),
+  }));
+  const expected = Object.assign({}, profile);
+  delete expected.os;
+  assert.deepEqual(state.notebookProfile, SP.config.sanitizeProfile(expected));
+  assert.equal(parseDataFile(JSON.stringify({ schemaVersion: 1, notebookProfile: 'x' })).notebookProfile, null);
+});

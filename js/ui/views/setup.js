@@ -76,6 +76,8 @@
     }
 
     function finish() {
+      // The Notebook now holds this profile's instructions and reference files.
+      store.setNotebookProfile(store.getProfile());
       store.setStepDone(step.id, true);
       screenIndex = 0;
       const next = SP.ui.starterPath.findNextStep(path, new Set(store.getCompletedSteps()));

@@ -22,7 +22,7 @@ This round validates Copilot SkillPath, a local HTML app that sets up a Copilot 
 | F5 | Need help with this step? | Use I'm stuck, Explain this, Review my work, Check my understanding, with and without inputs | Step title and inputs appear; empty inputs stay as \[PLACEHOLDER\] |  |
 | F6 | Theory, Quizzes, Prompt Library | Open each chapter, build quizzes with different options, copy one prompt per library group | Every prompt copies and matches the selection |  |
 | F7 | Export, delete, import | Export data → Delete all my data → import the file; then import an invalid or edited .json | Data restored identically; invalid files rejected with a clear message |  |
-| F8 | Profile change | After a few steps, Update my profile | Prompts update; app points to redoing the Notebook setup |  |
+| F8 | Profile change | After a few steps, Update my profile | Prompts update; a banner says the Notebook is out of date (for a framework or language change, it offers starting again with a new Notebook); the banner disappears after the setup is done again |  |
 | F9 | Robustness | Reload mid-flow, private window, dark mode, narrow window, keyboard only | Nothing lost; clear message if storage is unavailable; layout usable |  |
 
 ## 2. Copilot responses

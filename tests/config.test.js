@@ -124,3 +124,15 @@ test('there are exactly two starter presets: Playwright + JavaScript and Seleniu
   assert.deepEqual(presets.map((p) => [p.values.framework, p.values.language]), [['playwright', 'javascript'], ['selenium', 'java']]);
   for (const p of presets) assert.equal(p.values.experienceLevel, 'beginner');
 });
+
+test('compareNotebookProfile tells a stack change from a change in details', () => {
+  const setUp = config.applyPreset('starter-playwright-javascript');
+  assert.equal(config.compareNotebookProfile(null, setUp), null);
+  assert.equal(config.compareNotebookProfile(setUp, Object.assign({}, setUp)), null);
+  assert.equal(config.compareNotebookProfile(setUp, Object.assign({}, setUp, { os: 'macos' })), 'details');
+  assert.equal(config.compareNotebookProfile(setUp, Object.assign({}, setUp, { timeAmount: '2' })), 'details');
+  assert.equal(config.compareNotebookProfile(setUp, Object.assign({}, setUp, { language: 'typescript' })), 'stack');
+  assert.equal(config.compareNotebookProfile(setUp, config.applyPreset('starter-selenium-java')), 'stack');
+  // A hidden field left over in the draft is not a change.
+  assert.equal(config.compareNotebookProfile(setUp, Object.assign({}, setUp, { frameworkOther: 'x' })), null);
+});

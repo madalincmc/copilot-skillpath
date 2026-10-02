@@ -1,5 +1,6 @@
 /*
- * Local persistence for the learner profile and Starter Path progress.
+ * Local persistence for the learner profile, Starter Path progress, and the profile the Copilot
+ * Notebook was last set up with (to tell when the Notebook's instructions are out of date).
  *
  * Everything lives under one localStorage key as a versioned JSON document. If localStorage is
  * unavailable or a write fails, the store keeps working in memory and getStatus() reports why,
@@ -33,6 +34,7 @@
     return {
       schemaVersion: SCHEMA_VERSION,
       profile: null,
+      notebookProfile: null,
       progress: { completedSteps: [] },
     };
   }
@@ -54,6 +56,7 @@
     return {
       schemaVersion: SCHEMA_VERSION,
       profile: isPlainObject(s.profile) ? s.profile : null,
+      notebookProfile: isPlainObject(s.notebookProfile) ? s.notebookProfile : null,
       progress: { completedSteps: Array.from(new Set(steps.filter((id) => typeof id === 'string'))) },
     };
   }
@@ -177,6 +180,17 @@
         commit();
       },
 
+      /** The profile the Copilot Notebook was last set up with, or null if unknown. */
+      getNotebookProfile() {
+        return clone(state.notebookProfile);
+      },
+
+      setNotebookProfile(profile) {
+        if (profile != null && !isPlainObject(profile)) throw new TypeError('Notebook profile must be an object or null.');
+        state.notebookProfile = clone(profile);
+        commit();
+      },
+
       getCompletedSteps() {
         return state.progress.completedSteps.slice();
       },
@@ -189,6 +203,12 @@
         const steps = state.progress.completedSteps.filter((id) => id !== stepId);
         if (done) steps.push(stepId);
         state.progress.completedSteps = steps;
+        commit();
+      },
+
+      /** Clears Starter Path progress and keeps the profile. */
+      clearProgress() {
+        state.progress.completedSteps = [];
         commit();
       },
 

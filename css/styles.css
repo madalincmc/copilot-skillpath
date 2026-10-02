@@ -216,6 +216,19 @@ a {
   margin: 0 0 12px;
 }
 
+.notebook-banner {
+  margin-bottom: 24px;
+  padding: var(--space);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius);
+  color: var(--warning-text);
+}
+
+.notebook-banner p {
+  margin: 0 0 12px;
+}
+
 .panel {
   margin: 0 0 24px;
   padding: 20px;

@@ -172,6 +172,7 @@
       pageHeader(path.title,
         'Set up your Copilot Notebook, then follow the steps. Each step gives you a prompt to paste into the same Notebook.'),
       profile ? null : startCallout(),
+      SP.ui.notebookBanner(app),
       h('div', { class: 'progress' },
         h('div', { class: 'progress-text' }, h('span', null, doneCount + ' of ' + required.length + ' steps done'), path.steps.some((s) => s.optional) ? h('span', { class: 'hint' }, 'Optional steps are not counted.') : null),
         h('progress', { max: String(required.length), value: String(doneCount), 'aria-label': 'Starter Path progress' })),
