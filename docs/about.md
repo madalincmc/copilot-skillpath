@@ -36,6 +36,8 @@ SkillPath solves these by giving Copilot a fixed context, a teaching style, and 
 ## How it works
 
 1. **Learning profile.** The learner picks a preset or fills in a short form: framework, language, OS, IDE, experience, testing and Git background, practice target, goal, available time, target duration, and learning style. It takes under a minute.
+
+    By default, all exercises use the [QA Automation Playground](https://auto-test-site.vercel.app/index.html), a practice site built for this path, with pages for logins, forms, a shop and checkout, tables, interactions, dynamic content, frames, and shadow DOM. Copilot is told to use only this site and never suggest another one. Learners can choose their own application instead.
 2. **Notebook setup (step 0).** A four-screen wizard:
     1. Download 3 reference files generated from the profile: the learning profile, the Starter Path with each step's "done when" criteria, and the essentials of test automation.
     2. Create a Copilot Notebook and add the files as references.

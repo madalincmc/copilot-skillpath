@@ -52,7 +52,6 @@ Starting ideas, to confirm or reject:
 
 - Show each step's “Done when” as a checklist, and include it in the step prompt.
 - A “Where I left off” prompt for returning to the Notebook after a break.
-- Pin the practice site chosen in step 5, so Copilot doesn't switch sites.
 - Save quiz scores in the app.
 
 ## Reporting

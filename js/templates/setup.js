@@ -11,7 +11,7 @@
 
   register({
     id: 'setup.notebook-instructions',
-    version: 5,
+    version: 6,
     category: 'setup',
     title: 'Notebook instructions',
     description: 'Paste this once into your Notebook\'s Instructions (More options (…) → Instructions). It tells Copilot who you are and how to teach you.',
@@ -51,7 +51,7 @@
       '- When we finish a step, ask me 3 short questions about it, one at a time. Wait for each answer and give feedback before asking the next.',
       '- Then remind me to mark the step as done in the Copilot SkillPath app and paste the next step\'s prompt from there. Don\'t start the next step on your own.',
       '- Use this Notebook\'s references first, follow the official docs for my tools, and say when something depends on the version.',
-      '- Connect new topics to what we already covered in this Notebook.',
+      '- Link new topics to earlier ones.',
       '- Keep each message to one concept, explained thoroughly.',
     ].join('\n'),
   });

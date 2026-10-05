@@ -172,12 +172,39 @@
     in: ['playwright', 'selenium', 'webdriverio', 'cypress', 'other'].filter((f) => !excluded.includes(f)),
   });
 
+  /*
+   * The default practice site, made for this path. Copilot can't open web pages from a Notebook,
+   * so the page list goes into the profile reference file (js/content/references.js).
+   */
+  const PRACTICE_SITE = {
+    name: 'QA Automation Playground',
+    url: 'https://auto-test-site.vercel.app/index.html',
+    summary: 'A static practice website for learning UI test automation. All state (session, cart, orders, profile edits) is kept in the browser\'s localStorage, so it can be reset by clearing site data.',
+    pages: [
+      ['index.html', 'Landing page, test accounts, test data'],
+      ['login.html', 'Login validation, locked/slow users, remember me, forgot password, redirect after login'],
+      ['register.html', 'Sign-up form validation, password strength, duplicate checks'],
+      ['profile.html', 'Edit mode, address, change password, preferences, avatar upload, confirm modal'],
+      ['shop.html', 'Search, filters, sorting, pagination, grid/list view, add/remove from cart'],
+      ['product.html?id=N', 'Size/colour/quantity selection, tabs, reviews'],
+      ['cart.html', 'Quantity updates, remove items, coupons, totals'],
+      ['checkout.html', 'Multi-step checkout, card validation, test cards, order confirmation'],
+      ['orders.html', 'Order history, expand details, cancel order, filter'],
+      ['elements.html', 'Every input type, buttons, checkboxes, radios, native and custom dropdowns, autocomplete, links, images, locator challenges'],
+      ['tables.html', 'Static, sortable/searchable/paginated CRUD table, bulk selection, XPath-only table, merged cells, ARIA grid'],
+      ['interactions.html', 'JS alerts, modals, native dialog, tabs, accordion, hover, drag and drop, context menu, click-and-hold, keyboard, scrolling, custom slider'],
+      ['dynamic.html', 'Delayed elements, enable/visible after N seconds, dynamic IDs, stale elements, progress bar, flaky AJAX, infinite scroll, overlays'],
+      ['frames.html', 'Iframes, nested frames, editor in a frame, new tabs/windows, open/nested/closed shadow DOM'],
+    ],
+  };
+
   config.domains = [
     {
       id: 'automation-testing',
       label: 'Automation Testing',
       description: 'Automate UI tests: set up a project, write tests and page objects, run them locally, and push to GitHub.',
       starterPathId: 'automation-testing',
+      practiceSite: PRACTICE_SITE,
       fields: [
         {
           id: 'framework',
@@ -279,7 +306,7 @@
           required: true,
           default: 'demo-site',
           options: [
-            { value: 'demo-site', label: 'A public demo site (Copilot suggests one)' },
+            { value: 'demo-site', label: 'The QA Automation Playground practice site (recommended)' },
             { value: 'own-app', label: 'My own application' },
           ],
         },
@@ -301,7 +328,7 @@
             if (ctx.practiceTarget.value === 'own-app') {
               return ctx.practiceTargetDetails ? 'my own application (' + ctx.practiceTargetDetails.label + ')' : 'my own application';
             }
-            return 'a public demo site suitable for practicing UI test automation (suggest one)';
+            return 'the ' + PRACTICE_SITE.name + ' (' + PRACTICE_SITE.url + '); use only this site, never suggest another';
           },
         },
       ],

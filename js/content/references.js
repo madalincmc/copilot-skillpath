@@ -34,14 +34,32 @@
     return title + '\n' + '='.repeat(title.length);
   }
 
-  function profileFile(context) {
+  function profileFile(context, site) {
     const rows = PROFILE_ROWS.filter(([, key]) => context[key]).map(([label, key]) => label + ': ' + context[key].label);
-    return [
+    const lines = [
       heading('My learning profile'),
       '',
       'This file describes me and my learning goal. Use it as context for every answer in this Notebook.',
       '',
       rows.join('\n'),
+    ];
+    if (site) lines.push('', '', practiceSiteSection(site));
+    return lines.join('\n');
+  }
+
+  /** What each page of the practice site offers, so exercises can point to the right page. */
+  function practiceSiteSection(site) {
+    const base = site.url.replace(/[^/]*$/, '');
+    return [
+      heading('My practice site: ' + site.name),
+      '',
+      site.url,
+      '',
+      site.summary,
+      'Use only this site for every exercise and example, and never suggest another practice site. For each exercise, name the page to use.',
+      '',
+      'Pages and what to practise on them:',
+      site.pages.map(([page, practice]) => '- ' + base + page + ': ' + practice).join('\n'),
     ].join('\n');
   }
 
@@ -87,13 +105,15 @@
     const values = SP.config.sanitizeProfile(profile);
     const context = SP.config.buildPromptContext(values);
     const path = SP.config.getStarterPath(values.domain);
+    const domain = SP.config.getDomain(values.domain);
+    const site = values.practiceTarget === 'demo-site' && domain && domain.practiceSite;
     const files = [
       {
         id: 'profile',
         filename: 'SkillPath 1 - My learning profile.txt',
         title: 'My learning profile',
         description: 'Your stack, experience, goal, and available time.',
-        text: profileFile(context),
+        text: profileFile(context, site),
       },
     ];
     if (path) {

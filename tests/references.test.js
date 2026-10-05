@@ -58,3 +58,15 @@ test('the essentials file is the same for every stack and names no technology', 
     for (const point of chapter.points) assert.ok(texts[0].includes('- ' + point), chapter.id);
   }
 });
+
+test('the profile file lists the practice site pages only when the learner uses the practice site', () => {
+  const demo = SP.references.buildReferenceFiles(config.applyPreset('starter-playwright-javascript'))[0].text;
+  assert.match(demo, /My practice site: QA Automation Playground/);
+  assert.match(demo, /never suggest another practice site/);
+  assert.match(demo, /- https:\/\/auto-test-site\.vercel\.app\/dynamic\.html: Delayed elements/);
+  for (const [page] of config.getDomain('automation-testing').practiceSite.pages) assert.ok(demo.includes('/' + page + ': '), page);
+
+  const ownApp = Object.assign(config.applyPreset('starter-playwright-javascript'), { practiceTarget: 'own-app', practiceTargetDetails: 'https://staging.example.com' });
+  const own = SP.references.buildReferenceFiles(ownApp)[0].text;
+  assert.doesNotMatch(own, /practice site|auto-test-site/);
+});

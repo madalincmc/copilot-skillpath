@@ -75,7 +75,7 @@ test('buildPromptContext resolves labels and derived variables', () => {
   assert.equal(ctx.goal.label, 'transition from manual testing to automation');
   assert.equal(ctx.availableTime.label, '1 hour per day');
   assert.equal(ctx.targetDuration.label, '2 months');
-  assert.match(ctx.practiceTargetDescription.label, /public demo site/);
+  assert.match(ctx.practiceTargetDescription.label, /^the QA Automation Playground \(https:\/\/auto-test-site\.vercel\.app\/index\.html\); use only this site, never suggest another$/);
 
   const custom = Object.assign({}, profile, {
     duration: 'custom',
