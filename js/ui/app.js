@@ -60,8 +60,8 @@
     const notice = document.getElementById('storage-notice');
     const announcer = document.getElementById('announcer');
     const versionLink = document.getElementById('app-version');
-    versionLink.textContent = SP.config.version.label;
-    versionLink.setAttribute('aria-label', 'Version ' + SP.config.version.label + ': what is new');
+    versionLink.textContent = SP.config.versionLabel();
+    versionLink.setAttribute('aria-label', 'Version ' + SP.config.versionLabel() + ': what is new');
     let route = routeFromHash();
 
     const app = {

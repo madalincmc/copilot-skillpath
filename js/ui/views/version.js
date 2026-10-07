@@ -17,14 +17,14 @@
 
   function versionView() {
     const version = SP.config.version;
-    const isBeta = /-beta\./.test(version.number);
+    const isBeta = SP.config.isBetaVersion();
     return h('section', null,
-      pageHeader('Version ' + version.label,
-        isBeta ? 'This is a beta version, on the way to the 1.0 release. Your feedback shapes what comes next.' : null),
+      pageHeader('Version ' + SP.config.versionLabel(),
+        isBeta ? 'This is a beta version ("b" stands for beta), on the way to the v1.0 release. Your feedback shapes what comes next.' : null),
       h('section', { class: 'panel', 'aria-labelledby': 'version-details' },
         h('h2', { id: 'version-details', class: 'visually-hidden' }, 'Release details'),
         h('dl', { class: 'version-details' },
-          h('dt', null, 'Version'), h('dd', null, version.label + ' (' + version.number + ')'),
+          h('dt', null, 'Version'), h('dd', null, SP.config.versionLabel() + (isBeta ? ' (beta)' : '')),
           h('dt', null, 'Released'), h('dd', null, h('time', { datetime: version.date }, formatDate(version.date))))),
       h('section', { class: 'panel', 'aria-labelledby': 'version-changes' },
         h('h2', { id: 'version-changes' }, 'What\'s new in this version'),

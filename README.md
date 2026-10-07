@@ -4,6 +4,8 @@ A local-first web app that gives people an entry point into learning with Micros
 
 The app has no backend, makes no network requests, and contains no LLM. Copilot does the teaching; this app prepares the context and the prompts.
 
+**Current version: v0.1b (beta)** · [What's new in this version](https://madalincmc.github.io/copilot-skillpath/#/version)
+
 ## Run it
 
 Double-click `index.html`. It works offline in Edge and Chrome, opened straight from disk (`file://`).
@@ -26,7 +28,14 @@ Writes `dist/copilot-skillpath.html`: one self-contained file with every stylesh
 
 ### Releasing a version
 
-The version is shown in the app header and on the Version page (`#/version`). For each release, update `js/config/version.js` (number, label, release date, and the list of changes in this version only) and set the same number in `package.json`; `tests/version.test.js` checks they match. Betas are `1.0.0-beta.N` until `1.0.0`.
+Versions read `v0.1b`, `v0.2b`, … during the beta ("b" = beta), then `v1.0` for the release. The version is shown in the app header and on the [Version page](https://madalincmc.github.io/copilot-skillpath/#/version) (`#/version`).
+
+For each release:
+
+1. In `js/config/version.js`, set the number, the release date, and the list of changes in this version only.
+2. Set the same version in `package.json`, in npm form: `0.2b` → `0.2.0-beta`, `1.0` → `1.0.0`. `tests/version.test.js` checks they match.
+3. Update **Current version** at the top of this README.
+4. Tag the release commit, e.g. `v0.2b`.
 
 ### About the app
 
