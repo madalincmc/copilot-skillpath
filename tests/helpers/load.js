@@ -5,6 +5,7 @@ const ROOT = path.join(__dirname, '..', '..');
 
 // Same order as index.html, minus the DOM-dependent UI scripts.
 const CORE_SCRIPTS = [
+  'js/config/version.js',
   'js/config/domains.js',
   'js/config/presets.js',
   'js/config/starter-path.js',

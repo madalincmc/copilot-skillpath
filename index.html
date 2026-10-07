@@ -12,7 +12,10 @@
 
   <header class="app-header">
     <div class="app-header-inner">
-      <a class="brand" href="#/path">Copilot SkillPath</a>
+      <div class="brand-group">
+        <a class="brand" href="#/path">Copilot SkillPath</a>
+        <a id="app-version" class="app-version" href="#/version"></a>
+      </div>
       <nav id="nav" class="app-nav" aria-label="Main"></nav>
     </div>
   </header>
@@ -28,6 +31,7 @@
     Classic scripts on purpose: ES modules and fetching local files are blocked when the page is opened
     from file://, which is how this app is distributed. Order matters.
   -->
+  <script src="js/config/version.js"></script>
   <script src="js/config/domains.js"></script>
   <script src="js/config/presets.js"></script>
   <script src="js/config/starter-path.js"></script>
@@ -54,6 +58,7 @@
   <script src="js/ui/views/theory.js"></script>
   <script src="js/ui/views/quizzes.js"></script>
   <script src="js/ui/views/library.js"></script>
+  <script src="js/ui/views/version.js"></script>
   <script src="js/ui/app.js"></script>
 </body>
 </html>

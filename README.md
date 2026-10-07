@@ -24,6 +24,10 @@ npm run build
 
 Writes `dist/copilot-skillpath.html`: one self-contained file with every stylesheet and script inlined. Share that file (e.g. on Teams); it opens with a double-click, offline. `docs/how-to-start.md` is a short guide to send with it.
 
+### Releasing a version
+
+The version is shown in the app header and on the Version page (`#/version`). For each release, update `js/config/version.js` (number, label, release date, and the list of changes in this version only) and set the same number in `package.json`; `tests/version.test.js` checks they match. Betas are `1.0.0-beta.N` until `1.0.0`.
+
 ### About the app
 
 [`docs/about.md`](docs/about.md) explains the whole app for a non-technical reader: what it does, how and why, who it is for, its benefits, and its limitations.

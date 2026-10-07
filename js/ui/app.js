@@ -25,6 +25,7 @@
     { id: 'profile', label: 'My Profile' },
     // Not in the menu; highlights its parent instead.
     { id: 'setup', label: 'Notebook setup', hidden: true, navParent: 'path' },
+    { id: 'version', label: 'Version', hidden: true },
   ];
   const DEFAULT_ROUTE = 'path';
 
@@ -58,6 +59,9 @@
     const main = document.getElementById('main');
     const notice = document.getElementById('storage-notice');
     const announcer = document.getElementById('announcer');
+    const versionLink = document.getElementById('app-version');
+    versionLink.textContent = SP.config.version.label;
+    versionLink.setAttribute('aria-label', 'Version ' + SP.config.version.label + ': what is new');
     let route = routeFromHash();
 
     const app = {
@@ -82,6 +86,8 @@
 
     function renderView() {
       renderNav(nav, route);
+      if (route === 'version') versionLink.setAttribute('aria-current', 'page');
+      else versionLink.removeAttribute('aria-current');
       renderNotice(notice, app.store.getStatus());
       clear(main);
       main.appendChild(SP.views[route](app));
