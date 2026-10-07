@@ -142,6 +142,19 @@ test('after each step, Copilot sends the user back to the app instead of startin
   for (const t of SP.templates.list({ category: 'step' })) {
     assert.match(t.interaction, /mark the step done in Copilot SkillPath and paste the next prompt. Don't start the next step yourself/, t.id);
   }
-  assert.match(SP.templates.get('setup.notebook-instructions').interaction, /mark the step as done in the Copilot SkillPath app .* Don't start the next step on your own/);
+  assert.match(SP.templates.get('setup.notebook-instructions').interaction, /mark the step done in the Copilot SkillPath app .* Don't start the next step yourself/);
   assert.match(SP.templates.get('setup.initialize-workspace').output, /paste the Step 1 prompt from there/);
+});
+
+test('Copilot asks for one thing per message and marks checkpoints that the resume helper uses', () => {
+  const instructions = SP.templates.get('setup.notebook-instructions').interaction;
+  assert.match(instructions, /one exercise; wait for my output and review it; then one check question/);
+  assert.match(instructions, /Ask me for one thing per message, never two at once/);
+  assert.match(instructions, /"Checkpoint: Step N - <what is done>"/);
+  for (const t of SP.templates.list({ category: 'step' })) assert.match(t.interaction, /One request per message/, t.id);
+
+  assert.ok(config.defaultHelperTemplateIds.includes('helper.resume'));
+  const resume = SP.engine.generate(SP.templates.get('helper.resume'), { step: path.steps.find((s) => s.id === 'first-test') }).text;
+  assert.match(resume, /continue "Write my first test"\. Find the last "Checkpoint:"/);
+  assert.match(resume, /Don't restart the step/);
 });

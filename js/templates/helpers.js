@@ -8,6 +8,18 @@
   const register = SP.templates.register;
 
   register({
+    id: 'helper.resume',
+    version: 1,
+    category: 'helper',
+    title: 'Continue where I left off',
+    description: 'Use this when you come back to the Notebook after a break.',
+    domains: ['*'],
+    inputs: [],
+    body: 'I\'m back to continue "{{step.title}}". Find the last "Checkpoint:" for this step in our conversation and continue from the next part.',
+    interaction: 'Start with a 2-line recap of where we are. If there is no checkpoint, ask me what I finished last. Don\'t restart the step.',
+  });
+
+  register({
     id: 'helper.stuck',
     version: 1,
     category: 'helper',

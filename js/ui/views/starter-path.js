@@ -12,6 +12,7 @@
   const DEFAULT_DOMAIN = 'automation-testing';
 
   const HELPER_TITLES = {
+    'helper.resume': 'Continue where I left off',
     'helper.stuck': "I'm stuck",
     'helper.explain': 'Explain this',
     'helper.review': 'Review my work',

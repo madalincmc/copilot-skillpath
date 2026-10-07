@@ -17,7 +17,7 @@
 
   const config = (SP.config = SP.config || {});
 
-  config.defaultHelperTemplateIds = ['helper.stuck', 'helper.explain', 'helper.review', 'helper.quiz'];
+  config.defaultHelperTemplateIds = ['helper.resume', 'helper.stuck', 'helper.explain', 'helper.review', 'helper.quiz'];
 
   config.starterPaths = [
     {

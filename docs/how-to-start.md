@@ -32,7 +32,7 @@ The app walks you through four short screens:
 
 Steps 1 to 10 take you from an empty machine to tests running and pushed to GitHub.
 
-For each step: copy the prompt from the app, paste it into **the same Notebook**, and follow Copilot one step at a time. If you get stuck, use **Need help with this step?** for *I'm stuck*, *Explain this*, *Review my work*, or *Check my understanding*.
+For each step: copy the prompt from the app, paste it into **the same Notebook**, and follow Copilot one step at a time. If you get stuck, use **Need help with this step?** for *Continue where I left off* (after a break), *I'm stuck*, *Explain this*, *Review my work*, or *Check my understanding*.
 
 When a step is done, Copilot asks you a few questions, then sends you back to the app. Select **Mark as done** and copy the next prompt.
 

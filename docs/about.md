@@ -60,7 +60,7 @@ SkillPath solves these by giving Copilot a fixed context, a teaching style, and 
     | 11 | Run tests in CI (optional) |
 
     At the end of each step Copilot asks three questions, then sends the learner back to the app to mark the step done and copy the next prompt.
-4. **Help on every step.** *I'm stuck*, *Explain this*, *Review my work*, and *Check my understanding* prompts, with the current step filled in automatically.
+4. **Help on every step.** *Continue where I left off*, *I'm stuck*, *Explain this*, *Review my work*, and *Check my understanding* prompts, with the current step filled in automatically.
 5. **Beyond the path.**
     - **Theory:** 10 short chapters, each with a "Go deeper in Copilot" prompt for the learner's stack.
     - **Quizzes:** pick a topic, number of questions, format, and difficulty; Copilot asks one question at a time, explains each answer, and keeps score.
@@ -71,7 +71,9 @@ SkillPath solves these by giving Copilot a fixed context, a teaching style, and 
 The Notebook instructions set the same rules for every answer:
 
 - One concept at a time: what it is, why it matters in tests, an example, common mistakes, and similar options.
-- After each concept, 1–2 small exercises and a check question; wait for the answer and give feedback.
+- After each concept, in order: an exercise, the learner's output reviewed, then one check question.
+- One request per message: never two questions, or a question and an output, at once.
+- Each finished part ends with a "Checkpoint:" line, so *Continue where I left off* can resume there after a break.
 - Hints first; the full solution only when the learner asks.
 - Exact commands and menu paths for the learner's OS and IDE.
 - Explanations matched to the learner's level, linked to manual testing for manual testers, with every Git command explained for Git beginners.
