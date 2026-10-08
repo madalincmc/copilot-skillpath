@@ -71,7 +71,7 @@ test('templates and wizard text contain no technology-specific names', () => {
 });
 
 test('step prompts do not repeat the whole profile', () => {
-  const profileOnly = ['goal', 'availableTime', 'targetDuration', 'learningStyle', 'experienceLevel', 'testingExperience', 'practiceTargetDescription'];
+  const profileOnly = ['goal', 'availableTime', 'targetDuration', 'learningStyle', 'experienceLevel', 'testingExperience', 'practiceTargetDescription', 'practiceTargetName'];
   for (const template of SP.templates.list().filter((t) => t.category !== 'setup')) {
     const used = [].concat(template.requiredVariables || [], template.optionalVariables || []);
     for (const name of profileOnly) assert.ok(!used.includes(name), template.id + ' repeats "' + name + '"');
@@ -81,14 +81,14 @@ test('step prompts do not repeat the whole profile', () => {
 test('Notebook instructions adapt to the profile', () => {
   const instructions = SP.templates.get('setup.notebook-instructions');
   const beginner = SP.engine.generate(instructions, { context: config.buildPromptContext(P.playwright) }).text;
-  assert.match(beginner, /Stack: Playwright with JavaScript, on Windows, using VS Code\./);
+  assert.match(beginner, /Stack: Playwright with JavaScript, on Windows, in VS Code\./);
   assert.match(beginner, /Assume I have not used Playwright before\./);
-  assert.match(beginner, /I'm new to Git/);
-  assert.match(beginner, /Relate automation ideas to manual testing/);
+  assert.match(beginner, /Explain each Git command the first time/);
+  assert.match(beginner, /Relate automation to manual testing/);
 
   const intermediate = SP.engine.generate(instructions, { context: config.buildPromptContext(P.seleniumIntermediate) }).text;
   assert.doesNotMatch(intermediate, /Assume I have not used/);
-  assert.doesNotMatch(intermediate, /new to Git/);
+  assert.doesNotMatch(intermediate, /Explain each Git command/);
   assert.doesNotMatch(intermediate, /\n\n\n/);
 });
 
@@ -96,14 +96,6 @@ test('the initialize prompt lists the Starter Path steps from the config', () =>
   const text = SP.engine.generate(SP.templates.get('setup.initialize-workspace'), {}).text;
   for (const step of path.steps.filter((s) => s.number > 0)) assert.ok(text.includes(step.number + '. ' + step.title), step.title);
   assert.match(text, /11\. Run tests in CI \(optional\)/);
-});
-
-test('Git basics are added to the GitHub step only for Git beginners', () => {
-  const t = SP.templates.get('step.push-github');
-  const step = path.steps.find((s) => s.id === 'push-github');
-  const gen = (profile) => SP.engine.generate(t, { context: config.buildPromptContext(profile), step }).text;
-  assert.match(gen(P.playwright), /new to Git/);
-  assert.doesNotMatch(gen(P.seleniumIntermediate), /new to Git/);
 });
 
 test('every Library template belongs to a known group', () => {
@@ -119,40 +111,49 @@ test('wizard text renders with the profile', () => {
   assert.match(SP.engine.renderText(create.text[1], context), /"Learning Cypress"/);
 });
 
-test('no prompt suggests IDE extensions; the only mentions say not to', () => {
+test('no prompt suggests IDE extensions; the only mention says not to, in the instructions', () => {
   for (const t of SP.templates.list()) {
     const text = [t.body, t.interaction, t.output].join('\n');
     for (const line of text.split('\n').filter((l) => /extension|plugin/i.test(l))) {
-      assert.match(line, /Don't suggest IDE extensions/, t.id + ': ' + line);
+      assert.equal(t.id, 'setup.notebook-instructions', t.id + ': ' + line);
+      assert.match(line, /Don't suggest IDE extensions or plugins for now/);
     }
   }
-  assert.match(SP.templates.get('step.environment').body, /Don't suggest IDE extensions for now/);
 });
 
-test('every step asks end-of-step questions and waits for each answer', () => {
-  for (const t of SP.templates.list({ category: 'step' })) {
-    assert.match(t.interaction, /ask me 3 short questions, one at a time, waiting for each answer/, t.id);
+test('the instructions hold the whole step flow, in order', () => {
+  const flow = SP.templates.get('setup.notebook-instructions').interaction;
+  const order = [
+    /1\. Teach one concept/,
+    /2\. Give me one exercise\. Wait for my output, then review it\./,
+    /3\. Ask one check question\. Wait for my answer/,
+    /4\. Write "Checkpoint: Step N - <what is done>"/,
+    /5\. When the step's "Done when" is met, ask 3 end-of-step questions, one at a time\./,
+    /6\. Tell me to mark the step done in the Copilot SkillPath app and paste the next prompt\. Don't start the next step\./,
+    /If I skip a part, say it stays open/,
+  ];
+  let from = 0;
+  for (const re of order) {
+    const m = flow.slice(from).match(re);
+    assert.ok(m, String(re));
+    from += m.index + m[0].length;
   }
-  const instructions = SP.templates.get('setup.notebook-instructions').interaction;
-  assert.match(instructions, /When we finish a step, ask me 3 short questions/);
-  assert.match(instructions, /Don't suggest IDE extensions or plugins/);
+  assert.match(flow, /One request per message: never two questions, or a question and a task\./);
+  assert.match(SP.templates.get('setup.notebook-instructions').body, /If a file appears more than once, use only the newest copy\./);
+  assert.match(SP.templates.get('setup.initialize-workspace').output, /paste the Step 1 prompt from there\. Don't start Step 1 yourself\./);
 });
 
-test('after each step, Copilot sends the user back to the app instead of starting the next step', () => {
-  for (const t of SP.templates.list({ category: 'step' })) {
-    assert.match(t.interaction, /mark the step done in Copilot SkillPath and paste the next prompt. Don't start the next step yourself/, t.id);
+test('step prompts name the step and its "Done when", and leave the rules to the instructions', () => {
+  for (const step of path.steps.filter((s) => s.mainTemplateId)) {
+    const text = SP.engine.generate(SP.templates.get(step.mainTemplateId), { context: config.buildPromptContext(P.playwright), step }).text;
+    assert.ok(text.startsWith('Step ' + step.number + ': ' + step.title + '. '), step.id);
+    assert.ok(text.includes('Done when: ' + step.definitionOfDone + '\n'), step.id);
+    assert.ok(text.endsWith('Work through it with the step flow from my Notebook instructions.'), step.id);
+    assert.doesNotMatch(text, /questions|Checkpoint|mark the step done/i, step.id);
   }
-  assert.match(SP.templates.get('setup.notebook-instructions').interaction, /mark the step done in the Copilot SkillPath app .* Don't start the next step yourself/);
-  assert.match(SP.templates.get('setup.initialize-workspace').output, /paste the Step 1 prompt from there/);
 });
 
-test('Copilot asks for one thing per message and marks checkpoints that the resume helper uses', () => {
-  const instructions = SP.templates.get('setup.notebook-instructions').interaction;
-  assert.match(instructions, /one exercise; wait for my output and review it; then one check question/);
-  assert.match(instructions, /Ask me for one thing per message, never two at once/);
-  assert.match(instructions, /"Checkpoint: Step N - <what is done>"/);
-  for (const t of SP.templates.list({ category: 'step' })) assert.match(t.interaction, /One request per message/, t.id);
-
+test('the resume helper continues from the last checkpoint', () => {
   assert.ok(config.defaultHelperTemplateIds.includes('helper.resume'));
   const resume = SP.engine.generate(SP.templates.get('helper.resume'), { step: path.steps.find((s) => s.id === 'first-test') }).text;
   assert.match(resume, /continue "Write my first test"\. Find the last "Checkpoint:"/);

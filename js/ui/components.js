@@ -40,7 +40,7 @@
       return h('div', { class: 'notebook-banner', role: 'status' },
         h('p', null, h('strong', null, 'Your Notebook is out of date.'),
           ' You changed your profile after setting up your Notebook, so Copilot still uses your old details.'),
-        h('p', null, 'Go through the setup again, but skip creating a Notebook: replace the reference files and the instructions in the one you have. Your progress is kept, so you continue from the step you are on.'),
+        h('p', null, 'Go through the setup again, but skip creating a Notebook. In the one you have, remove the old SkillPath files from References, add the new ones, and replace the instructions. Your progress is kept, so you continue from the step you are on.'),
         h('a', { class: 'button', href: '#/setup' }, 'Update my Notebook'));
     }
 

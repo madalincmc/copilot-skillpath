@@ -68,16 +68,26 @@ SkillPath solves these by giving Copilot a fixed context, a teaching style, and 
 
 ### How Copilot is told to teach
 
-The Notebook instructions set the same rules for every answer:
+Each thing Copilot needs lives in exactly one place, so nothing contradicts itself:
 
-- One concept at a time: what it is, why it matters in tests, an example, common mistakes, and similar options.
-- After each concept, in order: an exercise, the learner's output reviewed, then one check question.
-- One request per message: never two questions, or a question and an output, at once.
-- Each finished part ends with a "Checkpoint:" line, so *Continue where I left off* can resume there after a break.
-- Hints first; the full solution only when the learner asks.
-- Exact commands and menu paths for the learner's OS and IDE.
-- Explanations matched to the learner's level, linked to manual testing for manual testers, with every Git command explained for Git beginners.
-- Official documentation for the tools first, and a note when something depends on the version.
+| Where | What it holds |
+| --- | --- |
+| Notebook instructions | Who the learner is, in brief, and every teaching rule, including the step flow |
+| Reference files | The full profile and practice site, the steps with their "Done when", and the core concepts. They only describe; they give no instructions |
+| Step prompts | "Step N: title", the step's goal, and its "Done when"; they point to the step flow instead of restating it |
+
+The step flow in the instructions, for every step:
+
+1. Teach one concept: what it is, why it matters in tests, an example, common mistakes.
+2. Give one exercise, wait for the learner's output, and review it.
+3. Ask one check question, wait for the answer, and give feedback.
+4. Write "Checkpoint: Step N - what is done", so *Continue where I left off* can resume there after a break.
+5. When the step's "Done when" is met, ask 3 end-of-step questions, one at a time.
+6. Send the learner back to the app to mark the step done; never start the next step.
+
+A skipped part keeps the step open. Other rules: one request per message, hints before full solutions, exact commands for the learner's OS and IDE, the page of the practice site for each exercise, every new term explained, and official documentation first.
+
+Every reference file starts with the app version and when it was created. If an updated Notebook still holds older copies, Copilot uses only the newest one, and the setup asks the learner to remove the old files.
 
 ## Key design decisions
 

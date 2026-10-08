@@ -62,11 +62,26 @@ test('the essentials file is the same for every stack and names no technology', 
 test('the profile file lists the practice site pages only when the learner uses the practice site', () => {
   const demo = SP.references.buildReferenceFiles(config.applyPreset('starter-playwright-javascript'))[0].text;
   assert.match(demo, /My practice site: QA Automation Playground/);
-  assert.match(demo, /never suggest another practice site/);
+  assert.match(demo, /It is the only site I practise on\./);
   assert.match(demo, /- https:\/\/auto-test-site\.vercel\.app\/dynamic\.html: Delayed elements/);
   for (const [page] of config.getDomain('automation-testing').practiceSite.pages) assert.ok(demo.includes('/' + page + ': '), page);
 
   const ownApp = Object.assign(config.applyPreset('starter-playwright-javascript'), { practiceTarget: 'own-app', practiceTargetDetails: 'https://staging.example.com' });
   const own = SP.references.buildReferenceFiles(ownApp)[0].text;
   assert.doesNotMatch(own, /practice site|auto-test-site/);
+});
+
+test('every reference file starts with the app version and, when given, when it was created', () => {
+  const files = SP.references.buildReferenceFiles(P.playwright, '2026-10-08 14:05');
+  for (const file of files) {
+    assert.equal(file.text.split('\n')[2], 'SkillPath ' + config.versionLabel() + ' reference file, created 2026-10-08 14:05.', file.id);
+  }
+  const undated = SP.references.buildReferenceFiles(P.playwright)[0].text.split('\n')[2];
+  assert.equal(undated, 'SkillPath ' + config.versionLabel() + ' reference file.');
+});
+
+test('reference files describe; they give Copilot no instructions', () => {
+  for (const file of SP.references.buildReferenceFiles(P.playwright)) {
+    assert.doesNotMatch(file.text, /\b(Use (it|this|only)|never suggest|you should|Copilot,)\b/i, file.id);
+  }
 });

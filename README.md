@@ -4,7 +4,7 @@ A local-first web app that gives people an entry point into learning with Micros
 
 The app has no backend, makes no network requests, and contains no LLM. Copilot does the teaching; this app prepares the context and the prompts.
 
-**Current version: v0.2b (beta)** · [What's new in this version](https://madalincmc.github.io/copilot-skillpath/#/version)
+**Current version: v0.3b (beta)** · [What's new in this version](https://madalincmc.github.io/copilot-skillpath/#/version)
 
 ## Run it
 

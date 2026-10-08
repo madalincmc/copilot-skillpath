@@ -147,6 +147,7 @@
             'A Notebook answers from the references you give it. These files are made from your profile, so Copilot knows your setup, your plan, and the core concepts from the start.',
             'Download them now. You will add them when you create the Notebook in the next step.',
           ],
+          note: 'Updating a Notebook you already have? In its References, remove the old SkillPath files first, then add these. Old copies confuse Copilot.',
           referenceFiles: true,
           doneLabel: 'I downloaded the files',
         },

@@ -13,17 +13,20 @@
   const config = (SP.config = SP.config || {});
 
   config.version = {
-    number: '0.2b',
-    date: '2026-10-07',
+    number: '0.3b',
+    date: '2026-10-08',
     changes: [
-      'Copilot asks for one thing at a time: first an exercise, then it reviews your output, then one question to check your understanding. No more two requests in the same message.',
-      'Copilot ends each finished part of a step with a "Checkpoint:" line.',
-      'New "Continue where I left off" prompt on every step, under Need help with this step?: after a break, Copilot finds your last checkpoint and continues from there instead of restarting the step.',
-      'To get these changes, replace the instructions in your Notebook: go through the Notebook setup again and copy the new instructions.',
+      'Rewritten from scratch: the Notebook instructions, the step prompts, and the reference files. Each rule now lives in one place, so Copilot no longer gets mixed or repeated instructions.',
+      'A clear step flow: one concept, one exercise with a review of your output, one check question, then a checkpoint. The 3 end-of-step questions come only when the step\'s "Done when" is met.',
+      'If you skip part of a step, Copilot keeps the step open instead of finishing it.',
+      'Each step prompt starts with the step number and title and includes its "Done when", so Copilot knows exactly where you are.',
+      'For each exercise, Copilot names the page of the practice site to use.',
+      'Reference files show the app version and when they were created, and Copilot uses only the newest copy. When you update a Notebook, the app asks you to remove the old SkillPath files first.',
+      'To get these changes, set up a new Notebook, or update yours: remove the old SkillPath files from References, add the new ones, and replace the instructions.',
     ],
   };
 
-  /** "v0.1b" */
+  /** "v0.3b" */
   config.versionLabel = function () {
     return 'v' + config.version.number;
   };

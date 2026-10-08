@@ -66,5 +66,12 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
-  SP.browser = { copyText, downloadFile, readFileAsText, today };
+  /** Local date and time as "YYYY-MM-DD HH:MM", shown in the reference files. */
+  function nowStamp() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return today() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  SP.browser = { copyText, downloadFile, readFileAsText, today, nowStamp };
 })((globalThis.SkillPath = globalThis.SkillPath || {}));

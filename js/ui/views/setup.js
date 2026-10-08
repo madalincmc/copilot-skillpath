@@ -14,7 +14,7 @@
 
   /** The generated reference files, each with a preview and a download button, plus Download all. */
   function referenceFilesBlock(profile, app) {
-    const files = SP.references.buildReferenceFiles(profile);
+    const files = SP.references.buildReferenceFiles(profile, SP.browser.nowStamp());
     const download = (file) => SP.browser.downloadFile(file.filename, file.text, 'text/plain;charset=utf-8');
 
     return h('div', { class: 'reference-files' },

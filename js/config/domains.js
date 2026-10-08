@@ -198,6 +198,14 @@
     ],
   };
 
+  function practiceTargetName(ctx) {
+    if (!ctx.practiceTarget) return '';
+    if (ctx.practiceTarget.value === 'own-app') {
+      return ctx.practiceTargetDetails ? 'my own application (' + ctx.practiceTargetDetails.label + ')' : 'my own application';
+    }
+    return 'the ' + PRACTICE_SITE.name + ' (' + PRACTICE_SITE.url + ')';
+  }
+
   config.domains = [
     {
       id: 'automation-testing',
@@ -322,13 +330,17 @@
       ],
       derived: [
         {
+          // What I practise on, as a plain description (reference files).
+          id: 'practiceTargetName',
+          compute: practiceTargetName,
+        },
+        {
+          // The same, plus the rule for Copilot (Notebook instructions).
           id: 'practiceTargetDescription',
           compute(ctx) {
-            if (!ctx.practiceTarget) return '';
-            if (ctx.practiceTarget.value === 'own-app') {
-              return ctx.practiceTargetDetails ? 'my own application (' + ctx.practiceTargetDetails.label + ')' : 'my own application';
-            }
-            return 'the ' + PRACTICE_SITE.name + ' (' + PRACTICE_SITE.url + '); use only this site, never suggest another';
+            const name = practiceTargetName(ctx);
+            if (!name || ctx.practiceTarget.value === 'own-app') return name;
+            return name + '; use only this site, never suggest another';
           },
         },
       ],
